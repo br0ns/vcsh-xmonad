@@ -125,7 +125,6 @@ myTopics =
   , "multimedia"
   , "procrastination"
   , "wireshark"
-  , "pwnies"
   , "idapro"
   , "virtualbox"
   , "download"
@@ -140,9 +139,6 @@ myTopics =
   , "python"
     -- Projects
   , "pwntools"
-  , "mylib"
-  , "preml"
-  , "hindsight"
   , "treasure-hunt"
   , "bitcoin"
     -- Misc
@@ -175,37 +171,24 @@ myTopicConfig = TopicConfig
                              "xkcd.com \
                              \facebook.com \
                              \smbc-comics.com \
-                             \phdcomics.com/comics.php \
-                             \www.fitocracy.com")
+                             \phdcomics.com/comics.php")
        , ("virtualbox", spawn "virtualbox")
        , ("reading", spawn "evince")
-       , ("emacs", edit "~/config/dotemacs.d/setup-bindings.el")
-       , ("xmonad", edit "~/config/xmonad.hs" >>
+       , ("emacs", edit "~/.emacs.d/settings/global-key-bindings.el")
+       , ("xmonad", edit "~/.xmonad/xmonad.hs" >>
                     newBrowser
                     "http://xmonad.org/xmonad-docs/xmonad-contrib/index.html")
        , ("install", term)
-       , ("mylib", edit "~/code/sml/mylib/notes.org" >>
-                   term)
-       , ("preml", edit "~/code/sml/preml/notes.org" >>
-                   term)
        , ("pwntools", newBrowser "https://github.com/Gallopsled/pwntools" >>
                       term)
        , ("treasure-hunt", edit "~/pwnies/treasure-hunt/chal" >>
                            term)
-       , ("hindsight", edit "~/code/hindsight/src/TODO.org" >>
-                       term)
        , ("haskell", newBrowser "www.haskell.org/hoogle/")
        , ("inkscape", spawn "inkscape")
        , ("gimp", spawn "gimp")
-       , ("config", edit "~/config/install.sh ~/config/packagelist")
-       , ("bitcoin", newBrowser "https://www.mtgox.com/ \
-                                \http://bitcoinity.org/markets \
-                                \https://www.btcguild.com/ \
-                                \http://bitcoindifficulty.com/ \
+       , ("bitcoin", newBrowser "http://bitcoinity.org/markets \
                                 \http://bitcoinwisdom.com/bitcoin/difficulty \
-                                \http://www.alloscomp.com/bitcoin/calculator \
-                                \http://mining.thegenesisblock.com/" >>
-                     spawn "multibit")
+                                \https://bitcointalk.org/")
        ]
   , defaultTopicAction = const $ return ()
   , defaultTopic = "web"
@@ -213,17 +196,13 @@ myTopicConfig = TopicConfig
   }
 
 setWorkspaceDirs layout =
-  set "treasure-hunt"   "~/pwnies/treasure-hunt"                               $
-  set "pwnies"          "~/pwnies"                                             $
+  set "treasure-hunt"   "~/projects/treasurehunt"                              $
   set "pwntools"        "~/projects/pwntools/pwnlib"                           $
   set "download"        "~/downloads"                                          $
-  set "mylib"           "~/code/sml/mylib"                                     $
-  set "preml"           "~/code/sml/preml"                                     $
   set "study"           "~/study"                                              $
   set "sml"             "~/code/sml"                                           $
   set "haskell"         "~/code/haskell"                                       $
   set "python"          "~/code/python"                                        $
-  set "config"          "~/config"                                             $
   workspaceDir "~" layout
   where set ws dir = onWorkspace ws (workspaceDir dir layout)
 
@@ -257,9 +236,6 @@ deleteIfEmpty dir = do contents <- getDirectoryContents dir
                     `catch` \(_e :: IOError) -> return ()
 
 main = do
-  spawn "xset b off"
-  spawn "xcompmgr"
-  spawn "autocutsel -fork"
   liftIO $ do x <- doesDirectoryExist myScratchpadDir
               unless x (createDirectory myScratchpadDir)
   checkTopicConfig myTopics myTopicConfig
