@@ -1,0 +1,5 @@
+*
+!/.xmonad
+!/.xmonad/blink.c
+!/.xmonad/lib
+!/.xmonad/xmonad.hs
