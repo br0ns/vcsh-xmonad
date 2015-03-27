@@ -147,21 +147,24 @@ myTopics =
   , "anon"
   ]
 
+exec s = spawn $ "exec " ++ s
+safeExec s args = safeSpawn "exec" (s : args)
+
 myTerminal = "xterm"
 myBrowser = "chromium"
-edit s = spawn ("emacs " ++ s)
-term = spawn myTerminal
-browser s = spawn ("chromium " ++ s)
-newBrowser s = spawn ("chromium --new-window " ++ s)
-appBrowser s = spawn ("chromium --app=\"" ++ s ++ "\"")
+edit s = exec ("emacs " ++ s)
+term = exec myTerminal
+browser s = exec ("chromium " ++ s)
+newBrowser s = exec ("chromium --new-window " ++ s)
+appBrowser s = exec ("chromium --app=\"" ++ s ++ "\"")
 
 myTopicConfig = TopicConfig
   { topicDirs = M.fromList []
   , topicActions =
        M.fromList $
-       -- [ ("im", safeSpawn myTerminal ["-e", "ssh", "irssi@yesimparanoid.com", "-t", "screen", "-DR", "irc"])
-       -- [ ("im", safeSpawn myTerminal ["-e", "ssh", "irc@fa.ntast.dk", "-t", "screen", "-DR", "irc"])
-       [ ("im", safeSpawn myTerminal ["-e", "ssh", "lolbox.pwnies.dk", "-t", "screen", "-DR", "irc"])
+       -- [ ("im", safeExec myTerminal ["-e", "ssh", "irssi@yesimparanoid.com", "-t", "screen", "-DR", "irc"])
+       -- [ ("im", safeExec myTerminal ["-e", "ssh", "irc@fa.ntast.dk", "-t", "screen", "-DR", "irc"])
+       [ ("im", safeExec myTerminal ["-e", "ssh", "lolbox.pwnies.dk", "-t", "screen", "-DR", "irc"])
        -- [ ("im", term)
        , ("web", browser "")
        , ("organise", appBrowser "http://gmail.com" >>
@@ -172,8 +175,8 @@ myTopicConfig = TopicConfig
                              \facebook.com \
                              \smbc-comics.com \
                              \phdcomics.com/comics.php")
-       , ("virtualbox", spawn "virtualbox")
-       , ("reading", spawn "evince")
+       , ("virtualbox", exec "virtualbox")
+       , ("reading", exec "evince")
        , ("emacs", edit "~/.emacs.d/settings/global-key-bindings.el")
        , ("xmonad", edit "~/.xmonad/xmonad.hs" >>
                     newBrowser
@@ -184,8 +187,8 @@ myTopicConfig = TopicConfig
        , ("treasure-hunt", edit "~/pwnies/treasure-hunt/chal" >>
                            term)
        , ("haskell", newBrowser "www.haskell.org/hoogle/")
-       , ("inkscape", spawn "inkscape")
-       , ("gimp", spawn "gimp")
+       , ("inkscape", exec "inkscape")
+       , ("gimp", exec "gimp")
        , ("bitcoin", newBrowser "http://bitcoinity.org/markets \
                                 \http://bitcoinwisdom.com/bitcoin/difficulty \
                                 \https://bitcointalk.org/")
@@ -244,7 +247,7 @@ main = do
 myKeys =
   [ ("M-<shift>", sendMessage NextLayout)
   -- Rebind mod-q
-  , ("M-S-<Esc>", spawn "/home/br0ns/.cabal/bin/xmonad --recompile && /home/br0ns/.cabal/bin/xmonad --restart")
+  , ("M-S-<Esc>", exec "/home/br0ns/.cabal/bin/xmonad --recompile && /home/br0ns/.cabal/bin/xmonad --restart")
   -- GSSelect
   , ("M-g", goToSelected myGSConfig)
   -- Workspace navigation
@@ -272,16 +275,16 @@ myKeys =
   , ("M-'", submap . mySearchMap $ myPromptSearch)
   , ("M-C-'", submap . mySearchMap $ mySelectSearch)
   -- Scratchpad
-  , ("M-S-<Space>", scratchpadSpawnActionCustom "term" "xterm -name scratchpad-term")
-  , ("M-C-<Space>", scratchpadSpawnActionCustom "python" "PYTHONPATH=/home/br0ns/projects/pwntools/ xterm -name scratchpad-python -e ipython -c 'from pwn import *' --no-confirm-exit -i")
+  , ("M-S-<Space>", scratchpadExecActionCustom "term" "xterm -name scratchpad-term")
+  , ("M-C-<Space>", scratchpadExecActionCustom "python" "PYTHONPATH=/home/br0ns/projects/pwntools/ xterm -name scratchpad-python -e ipython -c 'from pwn import *' --no-confirm-exit -i")
   -- Global window
   , ("M-S-g", toggleGlobal)
   -- Focus urgent
   , ("M-u", focusUrgent)
   -- Notifications
-  , ("M-8", spawn "notify-send -t 4000 Network \"$(ip -4 -o addr show | cut -d' ' -f2,7)\" --icon=dialog-information")
-  , ("M-9", spawn "notify-send -t 2000 Battery \"$(acpi)\" --icon=dialog-information")
-  , ("M-0", spawn "notify-send -t 1500 Date \"$(date)\" --icon=dialog-information")
+  , ("M-8", exec "notify-send -t 4000 Network \"$(ip -4 -o addr show | cut -d' ' -f2,7)\" --icon=dialog-information")
+  , ("M-9", exec "notify-send -t 2000 Battery \"$(acpi)\" --icon=dialog-information")
+  , ("M-0", exec "notify-send -t 1500 Date \"$(date)\" --icon=dialog-information")
   ]
 
 -- from XMonad.Actions.Search
