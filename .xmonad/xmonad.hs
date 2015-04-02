@@ -148,7 +148,6 @@ myTopics =
   ]
 
 exec s = spawn $ "exec " ++ s
-safeExec s args = safeSpawn "exec" (s : args)
 
 myTerminal = "xterm"
 myBrowser = "chromium"
@@ -162,9 +161,9 @@ myTopicConfig = TopicConfig
   { topicDirs = M.fromList []
   , topicActions =
        M.fromList $
-       -- [ ("im", safeExec myTerminal ["-e", "ssh", "irssi@yesimparanoid.com", "-t", "screen", "-DR", "irc"])
-       -- [ ("im", safeExec myTerminal ["-e", "ssh", "irc@fa.ntast.dk", "-t", "screen", "-DR", "irc"])
-       [ ("im", safeExec myTerminal ["-e", "ssh", "lolbox.pwnies.dk", "-t", "screen", "-DR", "irc"])
+       -- [ ("im", safeSpawn myTerminal ["-e", "ssh", "irssi@yesimparanoid.com", "-t", "screen", "-DR", "irc"])
+       -- [ ("im", safeSpawn myTerminal ["-e", "ssh", "irc@fa.ntast.dk", "-t", "screen", "-DR", "irc"])
+       [ ("im", safeSpawn myTerminal ["-e", "ssh", "lolbox.pwnies.dk", "-t", "screen", "-DR", "irc"])
        -- [ ("im", term)
        , ("web", browser "")
        , ("organise", appBrowser "http://gmail.com" >>
@@ -247,7 +246,7 @@ main = do
 myKeys =
   [ ("M-<shift>", sendMessage NextLayout)
   -- Rebind mod-q
-  , ("M-S-<Esc>", exec "/home/br0ns/.cabal/bin/xmonad --recompile && /home/br0ns/.cabal/bin/xmonad --restart")
+  , ("M-S-<Esc>", spawn "/home/br0ns/.cabal/bin/xmonad --recompile && /home/br0ns/.cabal/bin/xmonad --restart")
   -- GSSelect
   , ("M-g", goToSelected myGSConfig)
   -- Workspace navigation
