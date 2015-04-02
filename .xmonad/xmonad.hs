@@ -247,6 +247,9 @@ myKeys =
   [ ("M-<shift>", sendMessage NextLayout)
   -- Rebind mod-q
   , ("M-S-<Esc>", spawn "/home/br0ns/.cabal/bin/xmonad --recompile && /home/br0ns/.cabal/bin/xmonad --restart")
+  -- Lock and suspend
+  , ("M-C-l", exec "xscreensaver-command -lock")
+  , ("M-C-<Backspace>", exec "~/.xmonad/suspend")
   -- GSSelect
   , ("M-g", goToSelected myGSConfig)
   -- Workspace navigation

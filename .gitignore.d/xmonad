@@ -1,5 +1,17 @@
 *
+!/.gitignore.d
+!/.gitignore.d/xmonad
 !/.xmonad
 !/.xmonad/blink.c
 !/.xmonad/lib
+!/.xmonad/lib/XMonad
+!/.xmonad/lib/XMonad/Hooks
+!/.xmonad/lib/XMonad/Hooks/UrgencyExtra.hs
+!/.xmonad/lib/XMonad/Layout
+!/.xmonad/lib/XMonad/Layout/TopicExtra.hs
+!/.xmonad/lib/XMonad/Layout/WorkspaceDirAlt.hs
+!/.xmonad/lib/XMonad/Util
+!/.xmonad/lib/XMonad/Util/ScratchpadAlt.hs
+!/.xmonad/lib/XMonad/Util/ScratchpadExtra.hs
+!/.xmonad/suspend.c
 !/.xmonad/xmonad.hs
