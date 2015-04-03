@@ -52,6 +52,7 @@ import XMonad.Layout.ThreeColumns
 ----- Actions
 import XMonad.Actions.CycleWS
   (prevScreen, nextScreen, swapPrevScreen, swapNextScreen)
+import XMonad.Actions.CycleWindows (cycleRecentWindows)
 import XMonad.Actions.GridSelect
 import XMonad.Actions.Submap (submap)
 import qualified XMonad.Actions.Search as Search
@@ -76,8 +77,8 @@ import XMonad.Util.Run (safeSpawn)
 import XMonad.Util.NamedWindows (getName)
 
 myLayout = ResizableTall 1 (3/100) (5/7) [] |||
-           Tabbed.tabbedBottom Tabbed.CustomShrink myTabbedTheme
-           -- Full
+           -- Tabbed.tabbedBottom Tabbed.CustomShrink myTabbedTheme
+           Full
 
 -- Don't show text in tabs.
 instance Tabbed.Shrinker Tabbed.CustomShrink where
@@ -252,6 +253,8 @@ myKeys =
   , ("M-C-<Backspace>", exec "~/.xmonad/suspend")
   -- GSSelect
   , ("M-g", goToSelected myGSConfig)
+  -- Window stack
+  , ("M-a", cycleRecentWindows [xK_Super_L] xK_a xK_q)
   -- Workspace navigation
   , ("M-S-z", shiftToSelectedWS True myGSConfig)
   , ("M-z", goToSelectedWS  myTopicConfig True myGSConfig)
