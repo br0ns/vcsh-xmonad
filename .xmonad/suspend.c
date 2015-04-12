@@ -6,7 +6,7 @@
 #include <fcntl.h>
 
 int main () {
-  char *args1[] = {"xscreensaver-command", "-lock", NULL};
+  char *args1[] = {"slock", NULL};
   char *args2[] = {"pm-suspend", NULL};
   setuid(0);
   setgid(0);
@@ -15,10 +15,8 @@ int main () {
   case -1:
     break;
   case 0:
-    /* wait until screen is locked */
-    wait(NULL);
-    /* a hack */
-    usleep(2000000);
+    /* wait a short while to make sure the screen is locked */
+    usleep(1000000);
     break;
   default:
     execvp(args1[0], args1);

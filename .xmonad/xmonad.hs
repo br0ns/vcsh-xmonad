@@ -54,8 +54,6 @@ import XMonad.Actions.CycleWS
   (prevScreen, nextScreen, swapPrevScreen, swapNextScreen)
 import XMonad.Actions.CycleWindows (cycleRecentWindows)
 import XMonad.Actions.GridSelect
-import XMonad.Actions.Submap (submap)
-import qualified XMonad.Actions.Search as Search
 import XMonad.Actions.WithAll (killAll)
 import XMonad.Actions.TopicSpace
   (TopicConfig (..), checkTopicConfig, switchTopic)
@@ -95,17 +93,9 @@ myTabbedTheme =
   }
 
 myManageHook =
-  [ className =? "Do"         --> doIgnore
-  , className =? "Xfce4-notifyd" --> doIgnore
-  , className =? "Pidgin"     --> doShift "im"
-  , className =? "XChat"      --> doShift "im"
-  , className =? "Bitcoin"    --> doShift "bitcoin"
-  , title     =? "Calendar"   --> doShift "organise"
+  [ title     =? "Calendar"   --> doShift "organise"
   , title     =? "GMail"      --> doShift "organise"
   , className =? "Gimp"       --> viewShift "gimp"
-  , className =? "Sonata"     --> doShift "multimedia"
-  , className =? "Rhythmbox"  --> doShift "multimedia"
-  , title     =? "Calculator" --> doCenterFloat
   , className =? "VirtualBox"      --> do name <- title
                                           case (name =~ "( \\(.*\\))?( \\[[^\\]]+\\])? - Oracle VM VirtualBox$") :: (String,String,String) of
                                             (_,"",_) -> return mempty
@@ -245,16 +235,19 @@ main = do
   xmonad $ br0nsConfig
 
 myKeys =
-  [ ("M-<shift>", sendMessage NextLayout)
   -- Rebind mod-q
-  , ("M-S-<Esc>", spawn "/home/br0ns/.cabal/bin/xmonad --recompile && /home/br0ns/.cabal/bin/xmonad --restart")
+  [ ("M-S-<Esc>", spawn "/home/br0ns/.cabal/bin/xmonad --recompile && /home/br0ns/.cabal/bin/xmonad --restart")
+  -- Application launcher
+  , ("M-p", exec "rofi -show run")
+  -- Bring up a menu for pass
+  , ("M-C-p", exec "~/.xmonad/passmenu")
   -- Lock and suspend
-  , ("M-C-l", exec "xscreensaver-command -lock")
+  , ("M-C-l", exec "slock")
   , ("M-C-<Backspace>", exec "~/.xmonad/suspend")
   -- GSSelect
   , ("M-g", goToSelected myGSConfig)
   -- Window stack
-  , ("M-a", cycleRecentWindows [xK_Super_L] xK_a xK_q)
+  , ("M-a", windows W.swapMaster >> cycleRecentWindows [xK_Super_L] xK_a xK_q)
   -- Workspace navigation
   , ("M-S-z", shiftToSelectedWS True myGSConfig)
   , ("M-z", goToSelectedWS  myTopicConfig True myGSConfig)
@@ -276,9 +269,6 @@ myKeys =
                liftIO $ createDirectory dir
                newScratchpad
                changeDir_ dir)
-  -- Search
-  , ("M-'", submap . mySearchMap $ myPromptSearch)
-  , ("M-C-'", submap . mySearchMap $ mySelectSearch)
   -- Scratchpad
   , ("M-S-<Space>", scratchpadSpawnActionCustom "term" "xterm -name scratchpad-term")
   , ("M-C-<Space>", scratchpadSpawnActionCustom "python" "PYTHONPATH=/home/br0ns/projects/pwntools/ xterm -name scratchpad-python -e ipython -c 'from pwn import *' --no-confirm-exit -i")
@@ -291,33 +281,6 @@ myKeys =
   , ("M-9", exec "notify-send -t 2000 Battery \"$(acpi)\" --icon=dialog-information")
   , ("M-0", exec "notify-send -t 1500 Date \"$(date)\" --icon=dialog-information")
   ]
-
--- from XMonad.Actions.Search
-mySearchMap method = M.fromList $
-        [ ((0, xK_g), method Search.google)
-        , ((0, xK_w), method Search.wikipedia)
-        , ((0, xK_h), method Search.hoogle)
-        , ((shiftMask, xK_h), method Search.hackage)
-        , ((0, xK_s), method Search.scholar)
-        , ((0, xK_m), method Search.mathworld)
-        , ((0, xK_p), method Search.maps)
-        , ((0, xK_d), method Search.dictionary)
-        , ((0, xK_a), method Search.alpha)
-        , ((0, xK_l), method Search.lucky)
-        , ((0, xK_i), method Search.images)
-        , ((shiftMask, xK_i), method Search.imdb)
-        , ((0, xK_y), method Search.youtube)
-        ]
-          where hackage =
-                  Search.searchEngine "hackage" "http://www.google.dk/search?btnI&q=site%3Ahackage.haskell.org+"
-
--- Prompt search: get input from the user via a prompt, then run the search in
--- `myBrowser` and automatically switch to the "web" workspace
-myPromptSearch (Search.SearchEngine _ site)
-  = inputPrompt myXPConfig "Search" ?+ Search.search myBrowser site
-
--- Select search: do a search based on the X selection
-mySelectSearch eng = Search.selectSearchBrowser myBrowser eng
 
 -- Remove workspace unless it's a topic
 myRemoveWorkspace :: X ()

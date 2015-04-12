@@ -13,5 +13,6 @@
 !/.xmonad/lib/XMonad/Util
 !/.xmonad/lib/XMonad/Util/ScratchpadAlt.hs
 !/.xmonad/lib/XMonad/Util/ScratchpadExtra.hs
+!/.xmonad/passmenu
 !/.xmonad/suspend.c
 !/.xmonad/xmonad.hs
