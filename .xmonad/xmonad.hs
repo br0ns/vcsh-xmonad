@@ -236,7 +236,7 @@ main = do
 
 myKeys =
   -- Rebind mod-q
-  [ ("M-S-<Esc>", spawn "/home/br0ns/.cabal/bin/xmonad --recompile && /home/br0ns/.cabal/bin/xmonad --restart")
+  [ ("M-S-<Esc>", spawn "~/.cabal/bin/xmonad --recompile && ~/.cabal/bin/xmonad --restart")
   -- Application launcher
   , ("M-p", exec "rofi -show run")
   -- Bring up a menu for pass
@@ -271,7 +271,7 @@ myKeys =
                changeDir_ dir)
   -- Scratchpad
   , ("M-S-<Space>", scratchpadSpawnActionCustom "term" "xterm -name scratchpad-term")
-  , ("M-C-<Space>", scratchpadSpawnActionCustom "python" "PYTHONPATH=/home/br0ns/projects/pwntools/ xterm -name scratchpad-python -e ipython -c 'from pwn import *' --no-confirm-exit -i")
+  , ("M-C-<Space>", scratchpadSpawnActionCustom "python" "PYTHONPATH=~/projects/pwntools/ xterm -name scratchpad-python -e ipython -c 'from pwn import *' --no-confirm-exit -i")
   -- Global window
   , ("M-S-g", toggleGlobal)
   -- Focus urgent
