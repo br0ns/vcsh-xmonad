@@ -51,7 +51,7 @@ import XMonad.Layout.ThreeColumns
 
 ----- Actions
 import XMonad.Actions.CycleWS
-  (prevScreen, nextScreen, swapPrevScreen, swapNextScreen)
+  (prevScreen, nextScreen, swapPrevScreen, swapNextScreen, shiftPrevScreen, shiftNextScreen)
 import XMonad.Actions.CycleWindows (cycleRecentWindows)
 import XMonad.Actions.GridSelect
 import XMonad.Actions.WithAll (killAll)
@@ -254,8 +254,10 @@ myKeys =
   -- Screen navigation
   , ("M-<Left>", prevScreen)
   , ("M-<Right>", nextScreen)
-  , ("M-S-<Left>", swapPrevScreen)
-  , ("M-S-<Right>", swapNextScreen)
+  , ("M-C-<Left>", shiftPrevScreen >> prevScreen)
+  , ("M-C-<Right>", shiftNextScreen >> nextScreen)
+  , ("M-<Up>", swapNextScreen)
+  , ("M-<Down>", swapPrevScreen)
   -- Window resizing
   , ("M-S-h", sendMessage MirrorExpand)
   , ("M-S-l", sendMessage MirrorShrink)
