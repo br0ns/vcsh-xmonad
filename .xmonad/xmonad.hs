@@ -48,6 +48,8 @@ import XMonad.Layout.NoBorders (smartBorders)
 import XMonad.Layout.Simplest
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.ThreeColumns
+import XMonad.Layout.MultiColumns
+import XMonad.Layout.WindowNavigation
 
 ----- Actions
 import XMonad.Actions.CycleWS
@@ -74,9 +76,12 @@ import XMonad.Util.EZConfig (additionalKeysP, removeKeysP)
 import XMonad.Util.Run (safeSpawn)
 import XMonad.Util.NamedWindows (getName)
 
-myLayout = ResizableTall 1 (3/100) (5/7) [] |||
-           -- Tabbed.tabbedBottom Tabbed.CustomShrink myTabbedTheme
-           Full
+myLayout = windowNavigation $
+         -- Tall 1 (3/100) (4/7) |||
+         -- ResizableTall 1 (3/100) (4/7) [] |||
+         -- Tabbed.tabbedBottom Tabbed.CustomShrink myTabbedTheme
+         multiCol [1] 4 (3/100) (4/7) |||
+         Full
 
 -- Don't show text in tabs.
 instance Tabbed.Shrinker Tabbed.CustomShrink where
@@ -244,6 +249,10 @@ myKeys =
   -- Lock and suspend
   , ("M-C-l", exec "slock")
   , ("M-C-<Backspace>", exec "~/.xmonad/suspend")
+  -- Volume
+  , ("<XF86AudioLowerVolume>", exec "~/bin/volume -5")
+  , ("<XF86AudioRaiseVolume>", exec "~/bin/volume +5")
+  , ("<XF86AudioMute>",        exec "~/bin/volume toggle")
   -- GSSelect
   , ("M-g", goToSelected myGSConfig)
   -- Window stack
@@ -258,6 +267,8 @@ myKeys =
   , ("M-C-<Right>", shiftNextScreen >> nextScreen)
   , ("M-<Up>", swapNextScreen)
   , ("M-<Down>", swapPrevScreen)
+  , ("M-C-<Up>", swapNextScreen >> nextScreen)
+  , ("M-C-<Down>", swapPrevScreen >> prevScreen)
   -- Window resizing
   , ("M-S-h", sendMessage MirrorExpand)
   , ("M-S-l", sendMessage MirrorShrink)

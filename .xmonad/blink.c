@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
@@ -12,7 +13,9 @@ int main () {
   int fd, i;
   setuid(0);
   setgid(0);
-  if ((fd = open("/proc/acpi/ibm/led", O_WRONLY)) == -1) _exit(0);
+  if ((fd = open("/proc/acpi/ibm/led", O_WRONLY)) == -1) {
+    return EXIT_FAILURE;
+  }
   for (i = 0; i < 10; i++) {
     write(fd, off, strlen(off));
     usleep(200000);
@@ -20,4 +23,5 @@ int main () {
     usleep(200000);
   }
   close(fd);
+  return EXIT_SUCCESS;
 }
