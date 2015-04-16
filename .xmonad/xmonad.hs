@@ -290,9 +290,8 @@ myKeys =
   -- Focus urgent
   , ("M-u", focusUrgent)
   -- Notifications
-  , ("M-8", exec "notify-send -t 4000 Network \"$(ip -4 -o addr show | cut -d' ' -f2,7)\" --icon=dialog-information")
-  , ("M-9", exec "notify-send -t 2000 Battery \"$(acpi)\" --icon=dialog-information")
-  , ("M-0", exec "notify-send -t 1500 Date \"$(date)\" --icon=dialog-information")
+  , ("M-9", exec "notify -t 2 Battery \"$(acpi)\"")
+  , ("M-0", exec "notify -t 2 \"$(date +\"%A %B %d\")\" \"$(date +\"%F %H:%M\")\"")
   ]
 
 -- Remove workspace unless it's a topic
