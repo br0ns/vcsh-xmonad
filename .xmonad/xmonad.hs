@@ -76,7 +76,7 @@ import XMonad.Util.EZConfig (additionalKeysP, removeKeysP)
 import XMonad.Util.Run (safeSpawn)
 import XMonad.Util.NamedWindows (getName)
 
-myLayout = windowNavigation $
+myLayout =
          -- Tall 1 (3/100) (4/7) |||
          -- ResizableTall 1 (3/100) (4/7) [] |||
          -- Tabbed.tabbedBottom Tabbed.CustomShrink myTabbedTheme
