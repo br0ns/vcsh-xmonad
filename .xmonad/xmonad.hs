@@ -217,7 +217,7 @@ br0nsConfig =
        , focusFollowsMouse = False
        , logHook = fadeOutLogHook $ fadeIf isUnfocusedOnCurrentWS 0.8
        , XMonad.workspaces = myTopics
-       , terminal = myTerminal
+       , terminal = "exec " ++ myTerminal
        , handleEventHook = myEventHook
        }
        `removeKeysP` (["M-q"] ++ ["M-" ++ m ++ k | m <- ["", "S-"], k <- map show [1..9 :: Int]])
