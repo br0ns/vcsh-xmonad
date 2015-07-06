@@ -275,7 +275,7 @@ myKeys =
   -- Dynamic workspaces
   , ("M-d", changeDir myXPConfig)
   , ("M-n", addWorkspacePrompt myXPConfig)
-  , ("M-m", addWorkspaceMoveWindowPrompt myXPConfig)
+  , ("M-S-n", addWorkspaceMoveWindowPrompt myXPConfig)
   , ("M-C-S-<Backspace>", killAll >> myRemoveWorkspace)
   , ("M-r", renameWorkspace myXPConfig)
   , ("M-s", do dir <- liftIO $ formatCalendarTime defaultTimeLocale (myScratchpadDir ++ "/%Y-%m-%d-%H:%M:%S")  `fmap` (getClockTime >>= toCalendarTime)
