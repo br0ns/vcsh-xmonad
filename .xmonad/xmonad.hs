@@ -278,7 +278,7 @@ myKeys =
   , ("M-S-n", addWorkspaceMoveWindowPrompt myXPConfig)
   , ("M-C-S-<Backspace>", killAll >> myRemoveWorkspace)
   , ("M-r", renameWorkspace myXPConfig)
-  , ("M-s", do dir <- liftIO $ formatCalendarTime defaultTimeLocale (myScratchpadDir ++ "/%Y-%m-%d-%H:%M:%S")  `fmap` (getClockTime >>= toCalendarTime)
+  , ("M-s", do dir <- liftIO $ formatCalendarTime defaultTimeLocale (myScratchpadDir ++ "/%Y-%m-%d-%H.%M.%S")  `fmap` (getClockTime >>= toCalendarTime)
                liftIO $ createDirectory dir
                newScratchpad
                changeDir_ dir)
