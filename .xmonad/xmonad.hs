@@ -13,6 +13,7 @@ import qualified Data.Map as M
 import Data.Maybe (isNothing, isJust, catMaybes)
 import Data.List (isPrefixOf, partition, (\\))
 import Control.Monad (liftM2, when, unless)
+import Control.Applicative ((<$>))
 import Control.Exception (catch)
 import System.Directory
 import System.Locale
@@ -258,8 +259,8 @@ myKeys =
   -- Window stack
   , ("M-a", windows W.swapMaster >> cycleRecentWindows [xK_Super_L] xK_a xK_q)
   -- Workspace navigation
-  , ("M-S-z", shiftToSelectedWS True myGSConfig)
-  , ("M-z", goToSelectedWS  myTopicConfig True myGSConfig)
+  , ("M-S-z", shiftToSelectedWS True False myGSConfig)
+  , ("M-z", goToSelectedWS myTopicConfig True False myGSConfig)
   -- Screen navigation
   , ("M-<Left>", prevScreen)
   , ("M-<Right>", nextScreen)
@@ -290,9 +291,13 @@ myKeys =
   -- Focus urgent
   , ("M-u", focusUrgent)
   -- Notifications
-  , ("M-9", exec "notify -t 2 Battery \"$(acpi)\"")
-  , ("M-0", exec "notify -t 2 \"$(date +\"%A %B %d\")\" \"$(date +\"%F %H:%M\")\"")
+  , ("M-8", do ws <- currentWorkspace
+               notify "" ws)
+  , ("M-9", notify "" "$(acpi)")
+  , ("M-0", notify "$(date +\"%A %B %d\")" "$(date +\"%F %H:%M\")")
   ]
+
+notify title body = exec $ "notify -t 2 \"" ++ title ++ "\" \"" ++ body ++ "\""
 
 -- Remove workspace unless it's a topic
 myRemoveWorkspace :: X ()
@@ -303,6 +308,11 @@ myRemoveWorkspace = do
       withDir $ \tag dir -> when (tag == this && tag =~ "^scratchpad-" && dir =~ ('^' : myScratchpadDir)) $ io $ deleteIfEmpty dir
       when (this `notElem` myTopics) removeWorkspace
 
+-- visibleWorkspaces :: X [WorkspaceId]
+
+currentWorkspace :: X WorkspaceId
+currentWorkspace = W.tag . W.workspace . W.current <$> gets windowset
+
 myXPConfig :: XPConfig
 myXPConfig = defaultXPConfig
   { fgColor = "#a8a3f7"
@@ -312,27 +322,6 @@ myXPConfig = defaultXPConfig
 
 myGSConfig :: HasColorizer a => GSConfig a
 myGSConfig = defaultGSConfig {gs_navigate = navNSearch}
-
-withSelectedWS :: (WindowSpace -> X ()) -> Bool -> GSConfig WindowSpace -> X ()
-withSelectedWS callback inclEmpty conf = do
-  mbws <- gridselectWS inclEmpty conf
-  case mbws of
-    Just ws -> callback ws
-    Nothing -> return ()
-
--- Includes empty window spaces if {True}
-gridselectWS :: Bool -> GSConfig WindowSpace -> X (Maybe WindowSpace)
-gridselectWS inclEmpty conf =
-  withWindowSet $ \ws -> do
-    let hid = W.hidden ws
-        vis = map W.workspace $ W.visible ws
-        all = scratchpadFilterOutWorkspace $ hid ++ vis
-        wss = if inclEmpty
-              then let (nonEmp, emp) = partition nonEmptyWS all
-                   in nonEmp ++ emp
-              else Prelude.filter nonEmptyWS all
-        ids = map W.tag wss
-    gridselect conf $ zip ids wss
 
 myScratchpadDir :: String
 myScratchpadDir = "/tmp/scratchpads"

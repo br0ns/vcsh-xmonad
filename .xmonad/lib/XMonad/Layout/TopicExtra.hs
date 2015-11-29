@@ -56,17 +56,17 @@ addWorkspaceMoveWindowPrompt :: XPConfig -> X ()
 addWorkspaceMoveWindowPrompt conf =
   mkXPrompt (Wor "New workspace name: ") conf (const (return [])) addWorkspaceMoveWindow
 
-goToSelectedWS :: TopicConfig -> Bool -> GSConfig WindowSpace -> X ()
+goToSelectedWS :: TopicConfig -> Bool -> Bool -> GSConfig WindowSpace -> X ()
 goToSelectedWS topicConfig =
   withSelectedWS $ switchTopic topicConfig . W.tag
 
-shiftToSelectedWS :: Bool -> GSConfig WindowSpace -> X ()
+shiftToSelectedWS :: Bool -> Bool -> GSConfig WindowSpace -> X ()
 shiftToSelectedWS =
   withSelectedWS $ windows . (\ws -> W.greedyView ws . W.shift ws) . W.tag
 
-withSelectedWS :: (WindowSpace -> X ()) -> Bool -> GSConfig WindowSpace -> X ()
-withSelectedWS callback inclEmpty conf = do
-  mbws <- gridselectWS inclEmpty conf
+withSelectedWS :: (WindowSpace -> X ()) -> Bool -> Bool -> GSConfig WindowSpace -> X ()
+withSelectedWS callback inclEmpty inclVis conf = do
+  mbws <- gridselectWS inclEmpty inclVis conf
   case mbws of
     Just ws -> callback ws
     Nothing -> return ()
@@ -79,17 +79,19 @@ isUnfocusedOnCurrentWS = do
       unfocused = maybe True (w /=) $ W.peek ws
   return $ thisWS && unfocused
 
--- Includes empty window spaces if {True}
-gridselectWS :: Bool -> GSConfig WindowSpace -> X (Maybe WindowSpace)
-gridselectWS inclEmpty conf =
+gridselectWS :: Bool -> Bool -> GSConfig WindowSpace -> X (Maybe WindowSpace)
+gridselectWS inclEmpty inclVis conf =
   withWindowSet $ \ws -> do
     let hid = W.hidden ws
-        vis = map W.workspace $ W.visible ws
-        w_all = scratchpadFilterOutWorkspace $ hid ++ vis
+        all = scratchpadFilterOutWorkspace $
+              if inclVis then
+                hid ++ map W.workspace (W.visible ws)
+              else
+                hid
         wss = if inclEmpty
-              then let (nonEmp, emp) = partition nonEmptyWS w_all
+              then let (nonEmp, emp) = partition nonEmptyWS all
                    in nonEmp ++ emp
-              else Prelude.filter nonEmptyWS w_all
+              else Prelude.filter nonEmptyWS all
         ids = map W.tag wss
     gridselect conf $ zip ids wss
 
