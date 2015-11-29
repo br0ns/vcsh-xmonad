@@ -1,16 +1,68 @@
-#!/usr/bin/env bash
-# snatched from
-#   http://tools.suckless.org/dmenu/scripts/
+#!/usr/bin/env python
+import os, sys, subprocess
 
-shopt -s nullglob globstar
+PASSWORD_ONLY = ' (password only)'
 
-prefix=${PASSWORD_STORE_DIR-~/.password-store}
-password_files=( "$prefix"/**/*.gpg )
-password_files=( "${password_files[@]#"$prefix"/}" )
-password_files=( "${password_files[@]%.gpg}" )
+def pass_list():
+    passdir = os.path.expanduser('~/.password-store')
+    for root, dirs, files in os.walk(passdir):
+        for fname in files:
+            if not fname.endswith('.gpg'):
+                continue
+            path = os.path.join(root, fname)
+            yield os.path.relpath(path, passdir)[:-4]
 
-password=$(printf '%s\n' "${password_files[@]}" | rofi -dmenu -p "" "$@")
+def pass_get(entry):
+    return subprocess.check_output(['pass', 'show', entry]).split('\n')[0]
 
-[[ -n $password ]] || exit
+def rofi_menu(opts, prompt = ''):
+    p = subprocess.Popen(['rofi', '-dmenu', '-p', prompt],
+                         stdin = subprocess.PIPE,
+                         stdout = subprocess.PIPE,
+                         stderr = subprocess.PIPE,
+                         )
+    o, _e = p.communicate('\n'.join(opts))
+    if not o:
+        return None
+    return o.strip()
 
-xdotool - <<<"type --clearmodifiers -- $(pass show "$password" | head -n 1)"
+def xdotool_string(string):
+    subprocess.check_call(['xdotool', 'type', '--clearmodifiers', '--', string])
+
+def xdotool_key(key):
+    subprocess.check_call(['xdotool', 'key', '--clearmodifiers', key])
+
+def get_passwords_with_users():
+    passwords = set()
+    users = set()
+    for fname in get_passwords():
+        if fname.endswith('/user'):
+            users.add(fname[:-5])
+        else:
+            passwords.add(fname)
+    return users & passwords
+
+def main():
+    entries = list(pass_list())
+    opts = []
+    for entry in entries:
+        if entry.endswith('/user') and entry[:-5] in entries:
+            entry = entry[:-5] + PASSWORD_ONLY
+        opts.append(entry)
+
+    passwd = rofi_menu(sorted(opts))
+    usernm = passwd + '/user'
+    if passwd.endswith(PASSWORD_ONLY):
+        passwd = passwd[:-len(PASSWORD_ONLY)]
+
+    passwd = pass_get(passwd)
+    usernm = pass_get(usernm) if usernm in entries else None
+
+    if usernm:
+        xdotool_string(usernm + '\t' + passwd)
+        xdotool_key('Return')
+    else:
+        xdotool_string(passwd)
+
+if __name__ == '__main__':
+    main()
