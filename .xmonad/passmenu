@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import os, sys, subprocess
 
+# Based on script by Idolf, https://github.com/idolf
+
 PASSWORD_ONLY = ' (password only)'
 
 def pass_list():
