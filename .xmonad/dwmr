@@ -44,8 +44,9 @@ for p in procs:
 time.sleep(args.time / 1000.0)
 
 stats = []
+ncpu = psutil.cpu_count()
 for p in procs:
-    stats.append((p.pid, p.name(), p.cpu_percent(), p.memory_percent()))
+    stats.append((p.pid, p.name(), p.cpu_percent() / ncpu, p.memory_percent()))
 
 if args.sort_by == 'cpu':
     def key(p):
@@ -54,10 +55,7 @@ else:
     def key(p):
         return p[3]
 
-system = ('',
-          'System',
-          psutil.cpu_percent() * psutil.cpu_count(),
-          psutil.virtual_memory().percent)
+system = ('', 'System', psutil.cpu_percent(), psutil.virtual_memory().percent)
 
 stats = sorted(stats, key = key, reverse = True)[:args.procs]
 stats.insert(0, system)
