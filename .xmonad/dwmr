@@ -1,0 +1,75 @@
+#!/usr/bin/env python2
+
+import argparse
+import psutil
+import time
+
+p = argparse.ArgumentParser(
+    description = \
+    'Dude, Where\'s My Resources?',
+)
+
+p.add_argument(
+    '--sort-by', '-s',
+    metavar = '<what>',
+    help = 'What to sort by.  (choices: cpu, ram - default: cpu)',
+    choices = ['cpu', 'ram'],
+    default = 'cpu',
+)
+
+p.add_argument(
+    '--procs', '-n',
+    metavar = '<number>',
+    help = 'How many processes to list.  (default: 5)',
+    type = int,
+    default = 5,
+)
+
+p.add_argument(
+    '--time', '-t',
+    metavar = '<milliseconds>',
+    help = 'How many milliseconds to average CPU usage over.  (default: 500ms)',
+    type = int,
+    default = 500,
+)
+
+args = p.parse_args()
+
+procs = list(psutil.process_iter())
+
+psutil.cpu_percent()
+for p in procs:
+    p.cpu_percent()
+
+time.sleep(args.time / 1000.0)
+
+stats = []
+for p in procs:
+    stats.append((p.pid, p.name(), p.cpu_percent(), p.memory_percent()))
+
+if args.sort_by == 'cpu':
+    def key(p):
+        return p[2]
+else:
+    def key(p):
+        return p[3]
+
+system = ('',
+          'System',
+          psutil.cpu_percent() * psutil.cpu_count(),
+          psutil.virtual_memory().percent)
+
+stats = sorted(stats, key = key, reverse = True)[:args.procs]
+stats.insert(0, system)
+
+namelen = max(len(s[1]) for s in stats)
+
+def fmtline((p, n, c, m)):
+    return '%5s %s: %5.1f %5.1f' % (str(p), n.ljust(namelen), c, m)
+
+print '%s    CPU   RAM' % ''.ljust(namelen)
+line = fmtline(stats[0])
+print line
+print '-' * len(line)
+for s in stats[1:]:
+    print fmtline(s)

@@ -3,6 +3,7 @@
 !/.gitignore.d/xmonad
 !/.xmonad
 !/.xmonad/blink.c
+!/.xmonad/dwmr
 !/.xmonad/lib
 !/.xmonad/lib/XMonad
 !/.xmonad/lib/XMonad/Hooks

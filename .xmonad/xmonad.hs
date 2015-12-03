@@ -21,7 +21,7 @@ import System.Time
 import Data.Monoid(mempty, mappend, All(..))
 import Text.Regex.PCRE((=~))
 
-import XMonad.Config.Desktop (desktopConfig)
+import XMonad.Config (defaultConfig)
 
 ----- Own packages
 import XMonad.Hooks.UrgencyExtra
@@ -41,6 +41,7 @@ import XMonad.Hooks.UrgencyHook (UrgencyHook (..),
                                  withUrgencyHookC,
                                  focusUrgent,
                                  urgencyConfig)
+import XMonad.Hooks.EwmhDesktops (ewmh)
 
 ----- Layout
 import qualified XMonad.Layout.Tabbed as Tabbed
@@ -76,6 +77,7 @@ import XMonad.Prompt.Workspace (Wor(Wor))
 import XMonad.Util.EZConfig (additionalKeysP, removeKeysP)
 import XMonad.Util.Run (safeSpawn)
 import XMonad.Util.NamedWindows (getName)
+import XMonad.Util.Cursor
 
 myLayout =
          -- Tall 1 (3/100) (4/7) |||
@@ -207,21 +209,25 @@ setWorkspaceDirs layout =
 
 br0nsConfig =
   withUrgencyHookC LibNotifyUrgencyHook urgencyConfig { remindWhen = Every 10 } $
-  desktopConfig
+  ewmh defaultConfig
        { modMask = mod4Mask
-       , manageHook = manageHook desktopConfig <+>
-                      composeAll myManageHook <+>
-                      scratchpadManageHook (W.RationalRect 0.05 0.05 0.9 0.9)
-       , layoutHook = smartBorders $
-                      setWorkspaceDirs myLayout
+
+       , manageHook      = composeAll myManageHook <+>
+                           scratchpadManageHook (W.RationalRect 0.05 0.05 0.9 0.9)
+       , layoutHook      = smartBorders $
+                           setWorkspaceDirs myLayout
+       , logHook         = fadeOutLogHook $ fadeIf isUnfocusedOnCurrentWS 0.8
+       , handleEventHook = myEventHook
+       , startupHook     = setDefaultCursor xC_left_ptr
+
        , borderWidth = 0
        , focusFollowsMouse = False
-       , logHook = fadeOutLogHook $ fadeIf isUnfocusedOnCurrentWS 0.8
        , XMonad.workspaces = myTopics
        , terminal = "exec " ++ myTerminal
-       , handleEventHook = myEventHook
        }
+       -- Unbind quit and switching between workspaces with the number keys
        `removeKeysP` (["M-q"] ++ ["M-" ++ m ++ k | m <- ["", "S-"], k <- map show [1..9 :: Int]])
+       -- My key bindings
        `additionalKeysP` myKeys
 
 myEventHook :: Event -> X All
@@ -254,7 +260,9 @@ myKeys =
   , ("<XF86AudioLowerVolume>", exec "~/bin/volume -5")
   , ("<XF86AudioRaiseVolume>", exec "~/bin/volume +5")
   , ("<XF86AudioMute>",        exec "~/bin/volume toggle")
-  -- GSSelect
+  -- Display
+  , ("<XF86Display>", exec "xrandr-cycle")
+  -- GridSelect
   , ("M-g", goToSelected myGSConfig)
   -- Window stack
   , ("M-a", windows W.swapMaster >> cycleRecentWindows [xK_Super_L] xK_a xK_q)
@@ -291,10 +299,12 @@ myKeys =
   -- Focus urgent
   , ("M-u", focusUrgent)
   -- Notifications
+  , ("M-0", notify "$(date +\"%A %B %d\")" "$(date +\"%F %H:%M\")")
+  , ("M-9", notify "" "$(acpi)")
   , ("M-8", do ws <- currentWorkspace
                notify "" ws)
-  , ("M-9", notify "" "$(acpi)")
-  , ("M-0", notify "$(date +\"%A %B %d\")" "$(date +\"%F %H:%M\")")
+  , ("M-7", notify "" "$(when)")
+  , ("M-6", notify "" "$(~/.xmonad/dwmr -n3)")
   ]
 
 notify title body = exec $ "notify -t 2 \"" ++ title ++ "\" \"" ++ body ++ "\""
