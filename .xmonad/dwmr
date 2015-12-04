@@ -65,7 +65,7 @@ namelen = max(len(s[1]) for s in stats)
 def fmtline((p, n, c, m)):
     return '%5s %s: %5.1f %5.1f' % (str(p), n.ljust(namelen), c, m)
 
-print '%s    CPU   RAM' % ''.ljust(namelen)
+print '%s          CPU   RAM' % ''.ljust(namelen)
 line = fmtline(stats[0])
 print line
 print '-' * len(line)

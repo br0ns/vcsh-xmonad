@@ -304,7 +304,7 @@ myKeys =
   , ("M-8", do ws <- currentWorkspace
                notify "" ws)
   , ("M-7", notify "" "$(when)")
-  , ("M-6", notify "" "$(~/.xmonad/dwmr -n3)")
+  , ("M-6", notify "" "$(~/.xmonad/dwmr)")
   ]
 
 notify title body = exec $ "notify -t 2 \"" ++ title ++ "\" \"" ++ body ++ "\""
