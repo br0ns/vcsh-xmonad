@@ -8,8 +8,6 @@
 int main () {
   char *args1[] = {"slock", NULL};
   char *args2[] = {"pm-suspend", NULL};
-  setuid(0);
-  setgid(0);
 
   switch (fork() == 0) {
   case -1:
@@ -24,6 +22,8 @@ int main () {
   }
 
   if (fork() == 0) {
+    setuid(0);
+    setgid(0);
     execvp(args2[0], args2);
   }
 }
