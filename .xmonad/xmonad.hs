@@ -144,6 +144,7 @@ myTopics =
   , "background"
   , "windows"
   , "anon"
+  , "blog"
   ]
 
 exec s = spawn $ "exec " ++ s
@@ -189,7 +190,8 @@ myTopicConfig = TopicConfig
        , ("gimp", exec "gimp")
        , ("bitcoin", newBrowser "http://bitcoinity.org/markets \
                                 \http://bitcoinwisdom.com/bitcoin/difficulty \
-                                \https://bitcointalk.org/")
+                                \https://https://www.hashnest.com \
+                                \https://www.bitstamp.net")
        ]
   , defaultTopicAction = const $ return ()
   , defaultTopic = "web"
