@@ -190,7 +190,7 @@ myTopicConfig = TopicConfig
        , ("gimp", exec "gimp")
        , ("bitcoin", newBrowser "http://bitcoinity.org/markets \
                                 \http://bitcoinwisdom.com/bitcoin/difficulty \
-                                \https://https://www.hashnest.com \
+                                \https://www.hashnest.com \
                                 \https://www.bitstamp.net")
        ]
   , defaultTopicAction = const $ return ()
