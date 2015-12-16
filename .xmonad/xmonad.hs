@@ -166,7 +166,8 @@ myTopicConfig = TopicConfig
        [ ("im", safeSpawn myTerminal ["-e", "ssh", "lolbox.pwnies.dk", "-t", "screen", "-DR", "irc"])
        -- [ ("im", term)
        , ("web", browser "")
-       , ("organise", appBrowser "http://gmail.com" >>
+       -- , ("organise", appBrowser "http://gmail.com" >>
+       , ("organise", appBrowser "http://inbox.google.com" >>
                       appBrowser "http://calendar.google.com")
        , ("multimedia", appBrowser "https://soundcloud.com/explore/hardcore%2Btechno")
        , ("procrastination", newBrowser
