@@ -266,6 +266,9 @@ myKeys =
   , ("<XF86AudioMute>",        exec "~/bin/volume toggle")
   -- Display
   , ("<XF86Display>", exec "xrandr-cycle")
+  -- Panel brightness
+  , ("<XF86MonBrightnessUp>", exec "~/.xmonad/brightness +")
+  , ("<XF86MonBrightnessDown>", exec "~/.xmonad/brightness -")
   -- GridSelect
   , ("M-g", goToSelected myGSConfig)
   -- Window stack
