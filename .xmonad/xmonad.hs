@@ -53,6 +53,8 @@ import XMonad.Layout.ResizableTile
 import XMonad.Layout.ThreeColumns
 import XMonad.Layout.MultiColumns
 import XMonad.Layout.WindowNavigation
+import XMonad.Layout.TwoPane
+import XMonad.Layout.ToggleLayouts
 
 ----- Actions
 import XMonad.Actions.CycleWS
@@ -80,12 +82,18 @@ import XMonad.Util.Run (safeSpawn)
 import XMonad.Util.NamedWindows (getName)
 import XMonad.Util.Cursor
 
+-- XXX: focusUp, ... only on mapped windows
+
 myLayout =
          -- Tall 1 (3/100) (4/7) |||
          -- ResizableTall 1 (3/100) (4/7) [] |||
          -- Tabbed.tabbedBottom Tabbed.CustomShrink myTabbedTheme
-         multiCol [1] 4 (3/100) (4/7) |||
-         Full
+         toggleLayouts
+         (Full |||
+          TwoPane (3/100) (1/2)
+         )
+         (multiCol [1] 4 (3/100) (4/7)
+         )
 
 -- Don't show text in tabs.
 instance Tabbed.Shrinker Tabbed.CustomShrink where
@@ -121,6 +129,7 @@ myTopics =
   , "organise"
   , "reading"
   , "inkscape"
+  , "darktable"
   , "gimp"
   , "multimedia"
   , "procrastination"
@@ -189,6 +198,7 @@ myTopicConfig = TopicConfig
                            term)
        , ("haskell", newBrowser "www.haskell.org/hoogle/")
        , ("inkscape", exec "inkscape")
+       , ("darktable", exec "darktable")
        , ("gimp", exec "gimp")
        , ("bitcoin", newBrowser "http://bitcoinity.org/markets \
                                 \http://bitcoinwisdom.com/bitcoin/difficulty \
@@ -253,29 +263,45 @@ main = do
 myKeys =
   -- Rebind mod-q
   [ ("M-S-<Esc>", spawn "~/.cabal/bin/xmonad --recompile && ~/.cabal/bin/xmonad --restart")
+
   -- Application launcher
   , ("M-p", exec "rofi -show run")
+
   -- Bring up a menu for pass
   , ("M-C-p", exec "~/.xmonad/passmenu")
+
   -- Lock and suspend
   , ("M-C-l", exec "slock")
   , ("M-C-<Backspace>", exec "~/.xmonad/suspend")
+
   -- Volume
   , ("<XF86AudioLowerVolume>", exec "~/bin/volume -5")
   , ("<XF86AudioRaiseVolume>", exec "~/bin/volume +5")
   , ("<XF86AudioMute>",        exec "~/bin/volume toggle")
+
   -- Display
   , ("<XF86Display>", exec "xrandr-cycle")
+  , ("M-o", exec "xrandr-cycle")
+
   -- Panel brightness
   , ("<XF86MonBrightnessUp>", exec "~/.xmonad/brightness +")
   , ("<XF86MonBrightnessDown>", exec "~/.xmonad/brightness -")
+
   -- GridSelect
   , ("M-g", goToSelected myGSConfig)
+
+  -- Toggle layouts
+  , ("M-<Space>", sendMessage ToggleLayout)
+    -- M-|
+  , ("M-S-\\", sendMessage NextLayout)
+
   -- Window stack
   , ("M-a", windows W.swapMaster >> cycleRecentWindows [xK_Super_L] xK_a xK_q)
+
   -- Workspace navigation
   , ("M-S-z", shiftToSelectedWS True False myGSConfig)
   , ("M-z", goToSelectedWS myTopicConfig True False myGSConfig)
+
   -- Screen navigation
   , ("M-<Left>", prevScreen)
   , ("M-<Right>", nextScreen)
@@ -285,9 +311,11 @@ myKeys =
   , ("M-<Down>", swapPrevScreen)
   , ("M-C-<Up>", swapNextScreen >> nextScreen)
   , ("M-C-<Down>", swapPrevScreen >> prevScreen)
+
   -- Window resizing
   , ("M-S-h", sendMessage MirrorExpand)
   , ("M-S-l", sendMessage MirrorShrink)
+
   -- Dynamic workspaces
   , ("M-d", changeDir myXPConfig)
   , ("M-n", addWorkspacePrompt myXPConfig)
@@ -298,13 +326,17 @@ myKeys =
                liftIO $ createDirectory dir
                newScratchpad
                changeDir_ dir)
+
   -- Scratchpad
   , ("M-S-<Space>", scratchpadSpawnActionCustom "term" "xterm -name scratchpad-term")
   , ("M-C-<Space>", scratchpadSpawnActionCustom "python" "PYTHONPATH=~/projects/pwntools/ xterm -name scratchpad-python -e ipython -c 'from pwn import *' --no-confirm-exit -i")
+
   -- Global window
   , ("M-S-g", toggleGlobal)
+
   -- Focus urgent
   , ("M-u", focusUrgent)
+
   -- Notifications
   , ("M-0", notify "$(date +\"%A %B %d\")" "$(date +\"%F %H:%M\")")
   , ("M-9", notify "" "$(acpi)")
