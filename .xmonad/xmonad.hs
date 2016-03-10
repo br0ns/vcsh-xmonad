@@ -187,12 +187,9 @@ myTopicConfig = TopicConfig
   { topicDirs = M.fromList []
   , topicActions =
        M.fromList $
-       [ ("welcome",
-          return ()
-         )
-
+       [
          -- Tasks
-       , ("anon",
+         ("anon",
           exec "torbrowser-launcher"
          )
        , ("download",
