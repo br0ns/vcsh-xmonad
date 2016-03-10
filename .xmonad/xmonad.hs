@@ -123,42 +123,11 @@ myManageHook =
     where
       viewShift = doF . liftM2 (.) W.greedyView W.shift
 
-myTopics =
-  [ "im"
-  , "web"
-  , "organise"
-  , "reading"
-  , "inkscape"
-  , "darktable"
-  , "gimp"
-  , "multimedia"
-  , "procrastination"
-  , "wireshark"
-  , "idapro"
-  , "virtualbox"
-  , "download"
-    -- Configuration
-  , "emacs"
-  , "xmonad"
-  , "install"
-  , "config"
-    -- Coding
-  , "sml"
-  , "haskell"
-  , "python"
-    -- Projects
-  , "pwntools"
-  , "treasure-hunt"
-  , "bitcoin"
-    -- Misc
-  , "background"
-  , "windows"
-  , "anon"
-  , "blog"
-  ]
+------------------------------------------------------------------------
+--                               TOPICS                               --
+------------------------------------------------------------------------
 
 exec s = spawn $ "exec " ++ s
-
 myTerminal = "xterm"
 myBrowser = "chromium"
 edit s = exec ("emacs " ++ s)
@@ -167,57 +136,163 @@ browser s = exec ("chromium " ++ s)
 newBrowser s = exec ("chromium --new-window " ++ s)
 appBrowser s = exec ("chromium --app=\"" ++ s ++ "\"")
 
+myTopics =
+  [
+    -- "Tasks"
+    "anon"
+  , "background"
+  , "download"
+  , "im"
+  , "installing"
+  , "music"
+  , "organise"
+  , "procrastination"
+  , "reading"
+  , "web"
+
+    -- Configuration
+  , "bash"
+  , "emacs"
+  , "gdb"
+  , "git"
+  , "pkgs"
+  , "xmonad"
+
+    -- Programming
+  , "haskell"
+  , "python"
+  , "sml"
+
+    -- Projects
+  , "bitcoin"
+  , "blog"
+  , "bootstrap"
+  , "ddmin"
+  , "projects"
+  , "pwntools"
+  , "treasure-hunt"
+  ] ++ programTopics
+
+programTopics =
+  [ "darktable"
+  , "gimp"
+  , "idapro"
+  , "inkscape"
+  , "virtualbox"
+  , "windows"
+  , "wireshark"
+  ]
+
 myTopicConfig = TopicConfig
   { topicDirs = M.fromList []
   , topicActions =
        M.fromList $
-       -- [ ("im", safeSpawn myTerminal ["-e", "ssh", "irssi@yesimparanoid.com", "-t", "screen", "-DR", "irc"])
-       -- [ ("im", safeSpawn myTerminal ["-e", "ssh", "irc@fa.ntast.dk", "-t", "screen", "-DR", "irc"])
-       [ ("im", safeSpawn myTerminal ["-e", "ssh", "lolbox.pwnies.dk", "-t", "screen", "-DR", "irc"])
-       -- [ ("im", term)
-       , ("web", browser "")
-       , ("organise", appBrowser "http://gmail.com" >>
-       -- , ("organise", appBrowser "http://inbox.google.com" >>
-                      appBrowser "http://calendar.google.com")
-       , ("multimedia", appBrowser "https://soundcloud.com/explore/hardcore%2Btechno")
-       , ("procrastination", newBrowser
-                             "xkcd.com \
-                             \facebook.com \
-                             \smbc-comics.com \
-                             \phdcomics.com/comics.php")
-       , ("virtualbox", exec "virtualbox")
-       , ("reading", exec "evince")
-       , ("emacs", edit "~/.emacs.d/settings/global-key-bindings.el")
-       , ("xmonad", edit "~/.xmonad/xmonad.hs" >>
-                    newBrowser
-                    "http://xmonad.org/xmonad-docs/xmonad-contrib/index.html")
-       , ("install", term)
-       , ("pwntools", newBrowser "https://github.com/Gallopsled/pwntools" >>
-                      term)
-       , ("treasure-hunt", edit "~/pwnies/treasure-hunt/chal" >>
-                           term)
-       , ("haskell", newBrowser "www.haskell.org/hoogle/")
-       , ("inkscape", exec "inkscape")
-       , ("darktable", exec "darktable")
-       , ("gimp", exec "gimp")
-       , ("bitcoin", newBrowser "http://bitcoinity.org/markets \
-                                \http://bitcoinwisdom.com/bitcoin/difficulty \
-                                \https://www.hashnest.com \
-                                \https://www.bitstamp.net")
-       ]
+       [ ("welcome",
+          return ()
+         )
+
+         -- Tasks
+       , ("anon",
+          exec "torbrowser-launcher"
+         )
+       , ("download",
+          exec "deluge"
+         )
+       , ("im",
+          safeSpawn myTerminal
+          $ words "-e ssh lolbox.pwnies.dk -t screen -DR irc"
+         )
+       , ("music",
+          appBrowser "https://soundcloud.com/explore/trance"
+         )
+       , ("organise",
+          do appBrowser "http://gmail.com"
+             appBrowser "http://calendar.google.com"
+             edit "~/.when/calendar"
+         )
+       , ("procrastination",
+          newBrowser
+          $ unwords [ "xkcd.com"
+                    , "facebook.com"
+                    , "smbc-comics.com"
+                    , "phdcomics.com/comics.php"
+                    ]
+         )
+       , ("web",
+          browser ""
+         )
+
+         -- Configuration
+       , ("bash",
+          edit "~/.bashrc"
+         )
+       , ("emacs",
+          edit "~/.emacs.d/settings/global-key-bindings.el"
+         )
+       , ("gdb",
+          edit "~/.gdbinit"
+         )
+       , ("git",
+          edit "~/.gitconfig"
+         )
+       , ("pkgs",
+          edit "~/.pkgs/dowant.pkgs ~/.pkgs/ignore.pkgs ~/.pkgs/delete.pkgs"
+         )
+       , ("xmonad",
+          do edit "~/.xmonad/xmonad.hs"
+             newBrowser "http://xmonad.org/xmonad-docs/xmonad-contrib/"
+         )
+
+         -- Programming
+       , ("haskell",
+          newBrowser "www.haskell.org/hoogle/"
+         )
+
+         -- Projects
+       , ("bitcoin",
+          newBrowser
+          $ unwords [ "http://bitcoinity.org/markets"
+                    , "http://bitcoinwisdom.com/bitcoin/difficulty"
+                    , "https://www.hashnest.com"
+                    , "https://www.bitstamp.net"
+                    ]
+         )
+       , ("projects",
+          edit "~/projects/NOTES.md"
+         )
+       , ("pwntools",
+          do newBrowser "https://github.com/Gallopsled/pwntools"
+             term
+         )
+       , ("treasure-hunt",
+          do edit "~/pwnies/treasure-hunt/chal"
+             term
+         )
+
+       ] ++ [(p, exec p) | p <- programTopics]
+
+
   , defaultTopicAction = const $ return ()
   , defaultTopic = "web"
   , maxTopicHistory = 10
   }
 
 setWorkspaceDirs layout =
-  set "treasure-hunt"   "~/projects/treasurehunt"                              $
-  set "pwntools"        "~/projects/pwntools/pwnlib"                           $
+  -- Tasks
   set "download"        "~/downloads"                                          $
-  set "study"           "~/study"                                              $
-  set "sml"             "~/code/sml"                                           $
+
+  -- Projects
+  set "blog"            "~/projects/blog"                                      $
+  set "bootstrap"       "~/projects/bootstrap"                                 $
+  set "ddmin"           "~/projects/ddmin"                                     $
+  set "projects"        "~/projects"                                           $
+  set "pwntools"        "~/projects/pwntools/pwnlib"                           $
+  set "treasure-hunt"   "~/projects/treasurehunt"                              $
+
+  -- Programming
   set "haskell"         "~/code/haskell"                                       $
   set "python"          "~/code/python"                                        $
+  set "sml"             "~/code/sml"                                           $
   workspaceDir "~" layout
   where set ws dir = onWorkspace ws (workspaceDir dir layout)
 
@@ -275,8 +350,8 @@ myKeys =
   , ("M-C-<Backspace>", exec "~/.xmonad/suspend")
 
   -- Volume
-  , ("<XF86AudioLowerVolume>", exec "~/bin/volume -5")
-  , ("<XF86AudioRaiseVolume>", exec "~/bin/volume +5")
+  , ("<XF86AudioLowerVolume>", exec "~/bin/volume -")
+  , ("<XF86AudioRaiseVolume>", exec "~/bin/volume +")
   , ("<XF86AudioMute>",        exec "~/bin/volume toggle")
 
   -- Display
@@ -344,6 +419,7 @@ myKeys =
                notify "" ws)
   , ("M-7", notify "" "$(when)")
   , ("M-6", notify "" "$(~/.xmonad/dwmr)")
+  , ("M-5", notify "" "$(df -h)")
   ]
 
 notify title body = exec $ "notify -t 2 \"" ++ title ++ "\" \"" ++ body ++ "\""
