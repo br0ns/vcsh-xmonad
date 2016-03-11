@@ -127,19 +127,23 @@ myManageHook =
 --                               TOPICS                               --
 ------------------------------------------------------------------------
 
-exec s = spawn $ "exec " ++ s
+exec s = safeSpawn prog args
+  where prog : args = words s
 myTerminal = "xterm"
 myBrowser = "chromium"
-edit s = exec ("emacs " ++ s)
+myEditor = "emacs"
+
+edit files = safeSpawn myEditor files
 term = exec myTerminal
-browser s = exec ("chromium " ++ s)
-newBrowser s = exec ("chromium --new-window " ++ s)
-appBrowser s = exec ("chromium --app=\"" ++ s ++ "\"")
+browser urls = safeSpawn myBrowser $ "--" : urls
+newBrowser urls = safeSpawn myBrowser $ "--new-window" : "--" : urls
+appBrowser url = safeSpawn myBrowser ["--app=" ++ url]
 
 myTopics =
-  [
+  [ "today"
+
     -- "Tasks"
-    "anon"
+  , "anon"
   , "background"
   , "download"
   , "im"
@@ -187,9 +191,12 @@ myTopicConfig = TopicConfig
   { topicDirs = M.fromList []
   , topicActions =
        M.fromList $
-       [
+       [ ("today",
+          exec "today"
+         )
+
          -- Tasks
-         ("anon",
+       , ("anon",
           exec "torbrowser-launcher"
          )
        , ("download",
@@ -205,64 +212,62 @@ myTopicConfig = TopicConfig
        , ("organise",
           do appBrowser "http://gmail.com"
              appBrowser "http://calendar.google.com"
-             edit "~/.when/calendar"
+             edit ["~/.when/calendar"]
          )
        , ("procrastination",
-          newBrowser
-          $ unwords [ "xkcd.com"
-                    , "facebook.com"
-                    , "smbc-comics.com"
-                    , "phdcomics.com/comics.php"
-                    ]
+          newBrowser [ "xkcd.com"
+                     , "facebook.com"
+                     , "smbc-comics.com"
+                     , "phdcomics.com/comics.php"
+                     ]
          )
        , ("web",
-          browser ""
+          browser []
          )
 
          -- Configuration
        , ("bash",
-          edit "~/.bashrc"
+          edit ["~/.bashrc"]
          )
        , ("emacs",
-          edit "~/.emacs.d/settings/global-key-bindings.el"
+          edit ["~/.emacs.d/settings/global-key-bindings.el"]
          )
        , ("gdb",
-          edit "~/.gdbinit"
+          edit ["~/.gdbinit"]
          )
        , ("git",
-          edit "~/.gitconfig"
+          edit ["~/.gitconfig"]
          )
        , ("pkgs",
-          edit "~/.pkgs/dowant.pkgs ~/.pkgs/ignore.pkgs ~/.pkgs/delete.pkgs"
+          edit ["~/.pkgs/dowant.pkgs ~/.pkgs/ignore.pkgs ~/.pkgs/delete.pkgs"]
          )
        , ("xmonad",
-          do edit "~/.xmonad/xmonad.hs"
-             newBrowser "http://xmonad.org/xmonad-docs/xmonad-contrib/"
+          do edit ["~/.xmonad/xmonad.hs"]
+             newBrowser ["http://xmonad.org/xmonad-docs/xmonad-contrib/"]
          )
 
          -- Programming
        , ("haskell",
-          newBrowser "www.haskell.org/hoogle/"
+          newBrowser ["www.haskell.org/hoogle/"]
          )
 
          -- Projects
        , ("bitcoin",
-          newBrowser
-          $ unwords [ "http://bitcoinity.org/markets"
-                    , "http://bitcoinwisdom.com/bitcoin/difficulty"
-                    , "https://www.hashnest.com"
-                    , "https://www.bitstamp.net"
-                    ]
+          newBrowser [ "http://bitcoinity.org/markets"
+                     , "http://bitcoinwisdom.com/bitcoin/difficulty"
+                     , "https://www.hashnest.com"
+                     , "https://www.bitstamp.net"
+                     ]
          )
        , ("projects",
-          edit "~/projects/NOTES.md"
+          edit ["~/projects/NOTES.md"]
          )
        , ("pwntools",
-          do newBrowser "https://github.com/Gallopsled/pwntools"
+          do newBrowser ["https://github.com/Gallopsled/pwntools"]
              term
          )
        , ("treasure-hunt",
-          do edit "~/pwnies/treasure-hunt/chal"
+          do edit ["~/pwnies/treasure-hunt/chal"]
              term
          )
 
@@ -270,7 +275,7 @@ myTopicConfig = TopicConfig
 
 
   , defaultTopicAction = const $ return ()
-  , defaultTopic = "web"
+  , defaultTopic = "today"
   , maxTopicHistory = 10
   }
 
