@@ -424,7 +424,7 @@ myKeys =
   , ("M-5", notify "" "$(df -h)")
   ]
 
-notify title body = exec $ "notify -t 2 \"" ++ title ++ "\" \"" ++ body ++ "\""
+notify title body = spawn $ "notify -t 2 \"" ++ title ++ "\" \"" ++ body ++ "\""
 
 -- Remove workspace unless it's a topic
 myRemoveWorkspace :: X ()
