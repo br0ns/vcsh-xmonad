@@ -17,6 +17,7 @@ import Control.Monad (liftM2, when, unless)
 import Control.Applicative ((<$>))
 import Control.Exception (catch)
 import System.Directory
+import System.FilePath
 import System.Locale
 import System.Time
 import Data.Monoid(mempty, mappend, All(..))
@@ -127,8 +128,23 @@ myManageHook =
 --                               TOPICS                               --
 ------------------------------------------------------------------------
 
-exec s = safeSpawn prog args
-  where prog : args = words s
+exec s = do
+  let prog : args = words s
+  path <- liftIO $ expandUser prog
+  safeSpawn path args
+  where
+    expandUser path =
+      if head path /= '~'
+      then return path
+      else do
+        let tilde : suffix = splitPath path
+        -- `init` because `splitPath "~/foo"` => `["~/", "foo"]`
+        prefix <- case init tilde of
+          [_]      -> getHomeDirectory
+          _ : user -> return $ "/home/" ++ user
+        let path = joinPath $ prefix : suffix
+        return path
+
 myTerminal = "xterm"
 myBrowser = "chromium"
 myEditor = "emacs"
@@ -203,8 +219,7 @@ myTopicConfig = TopicConfig
           exec "deluge"
          )
        , ("im",
-          safeSpawn myTerminal
-          $ words "-e ssh lolbox.pwnies.dk -t screen -DR irc"
+          exec $ myTerminal ++ " -e ssh lolbox.pwnies.dk -t screen -DR irc"
          )
        , ("music",
           appBrowser "https://soundcloud.com/explore/trance"
@@ -239,7 +254,9 @@ myTopicConfig = TopicConfig
           edit ["~/.gitconfig"]
          )
        , ("pkgs",
-          edit ["~/.pkgs/dowant.pkgs ~/.pkgs/ignore.pkgs ~/.pkgs/delete.pkgs"]
+          edit [ "~/.pkgs/dowant.pkgs"
+               , "~/.pkgs/ignore.pkgs"
+               , "~/.pkgs/delete.pkgs"]
          )
        , ("xmonad",
           do edit ["~/.xmonad/xmonad.hs"]
@@ -352,9 +369,9 @@ myKeys =
   , ("M-C-<Backspace>", exec "~/.xmonad/suspend")
 
   -- Volume
-  , ("<XF86AudioLowerVolume>", exec "~/bin/volume -")
-  , ("<XF86AudioRaiseVolume>", exec "~/bin/volume +")
-  , ("<XF86AudioMute>",        exec "~/bin/volume toggle")
+  , ("<XF86AudioLowerVolume>", exec "volume -")
+  , ("<XF86AudioRaiseVolume>", exec "volume +")
+  , ("<XF86AudioMute>",        exec "volume toggle")
 
   -- Display
   , ("<XF86Display>", exec "xrandr-cycle")
