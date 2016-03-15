@@ -326,7 +326,9 @@ br0nsConfig =
                            setWorkspaceDirs myLayout
        , logHook         = fadeOutLogHook $ fadeIf isUnfocusedOnCurrentWS 0.8
        , handleEventHook = myEventHook
-       , startupHook     = setDefaultCursor xC_left_ptr
+       , startupHook     = do
+         setDefaultCursor xC_left_ptr
+         exec "today"
 
        , borderWidth = 0
        , focusFollowsMouse = False
