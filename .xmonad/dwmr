@@ -46,7 +46,10 @@ time.sleep(args.time / 1000.0)
 stats = []
 ncpu = psutil.cpu_count()
 for p in procs:
-    stats.append((p.pid, p.name(), p.cpu_percent() / ncpu, p.memory_percent()))
+    try:
+        stats.append((p.pid, p.name(), p.cpu_percent() / ncpu, p.memory_percent()))
+    except psutil.NoSuchProcess:
+        pass
 
 if args.sort_by == 'cpu':
     def key(p):
