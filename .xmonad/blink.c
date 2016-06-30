@@ -6,15 +6,23 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-/* /\* Lenovo Thinkpad: Power button LED *\/ */
-/* #define PATH "/proc/acpi/ibm/led" */
-/* #define ON "0 on" */
-/* #define OFF "0 off" */
+/* Power button LED
+ * Tested on:
+ *   Lenovo Thinkpad T420s
+ *   Lenovo Thinkpad T450s
+ *   Lenovo Thinkpad X1 Carbon 4th gen
+ */
+#define PATH "/proc/acpi/ibm/led"
+#define ON "0 on"
+#define OFF "0 off"
 
-/* Dell Latitude: Caps lock LED */
-#define PATH "/sys/class/leds/input0::capslock/brightness"
-#define ON "1"
-#define OFF "0"
+/* Caps lock LED
+ * Tested on:
+ *   Dell Latitude E7450
+ */
+/* #define PATH "/sys/class/leds/input0::capslock/brightness" */
+/* #define ON "1" */
+/* #define OFF "0" */
 
 #define DEFAULT OFF
 

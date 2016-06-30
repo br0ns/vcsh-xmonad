@@ -11,7 +11,10 @@
 
 #define STEPS 10
 
-/* Dell Latitude */
+/* Tested on:
+ *   Dell Latitude E7450
+ *   Lenovo Thinkpad X1 Carbon 4th gen
+ */
 #define PATH "/sys/class/backlight/intel_backlight/"
 
 #define MAX_STEP (STEPS - 1)
