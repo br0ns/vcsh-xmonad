@@ -409,8 +409,8 @@ myKeys =
   , ("M-C-<Down>", swapPrevScreen >> prevScreen)
 
   -- Window resizing
-  , ("M-S-h", sendMessage MirrorExpand)
-  , ("M-S-l", sendMessage MirrorShrink)
+  -- , ("M-S-h", sendMessage MirrorExpand)
+  -- , ("M-S-l", sendMessage MirrorShrink)
 
   -- Dynamic workspaces
   , ("M-d", changeDir myXPConfig)
@@ -425,7 +425,9 @@ myKeys =
 
   -- Scratchpad
   , ("M-S-<Space>", scratchpadSpawnActionCustom "term" "xterm -name scratchpad-term")
-  , ("M-C-<Space>", scratchpadSpawnActionCustom "python" "PYTHONPATH=~/projects/pwntools/ xterm -name scratchpad-python -e ipython -c 'from pwn import *' --no-confirm-exit -i")
+  , ("M-S-p", scratchpadSpawnActionCustom "python" "PYTHONPATH=~/projects/pwntools/ xterm -name scratchpad-python -e ipython -c 'from pwn import *' --no-confirm-exit -i")
+  , ("M-S-h", scratchpadSpawnActionCustom "haskell" "xterm -name scratchpad-haskell -e ghci")
+  -- , ("M-S-s", scratchpadSpawnActionCustom "python" "PYTHONPATH=~/projects/pwntools/ xterm -name scratchpad-python -e ipython -c 'from pwn import *' --no-confirm-exit -i")
 
   -- Global window
   , ("M-S-g", toggleGlobal)
