@@ -440,9 +440,15 @@ myKeys =
   , ("M-9", notify "" "$(acpi)")
   , ("M-8", do ws <- currentWorkspace
                notify "" ws)
-  , ("M-7", notify "" "$(when)")
-  , ("M-6", notify "" "$(~/.xmonad/dwmr)")
-  , ("M-5", notify "" "$(df -h)")
+  , ("M-7", do ws <- gets windowset
+               case W.peek ws of
+                Just w -> do nm <- getName w
+                             notify "" $ show nm
+                otherwise -> return ()
+    )
+  , ("M-3", notify "" "$(when)")
+  , ("M-2", notify "" "$(~/.xmonad/dwmr)")
+  , ("M-1", notify "" "$(df -h)")
   ]
 
 notify title body = spawn $ "notify -t 2 \"" ++ title ++ "\" \"" ++ body ++ "\""
