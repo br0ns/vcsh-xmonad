@@ -9,7 +9,7 @@ int main () {
   char *args1[] = {"slock", NULL};
   char *args2[] = {"pm-suspend", NULL};
 
-  switch (fork() == 0) {
+  switch (fork()) {
   case -1:
     break;
   case 0:
