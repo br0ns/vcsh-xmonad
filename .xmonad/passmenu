@@ -34,6 +34,17 @@ def xdotool_string(string):
 def xdotool_key(key):
     subprocess.check_call(['xdotool', 'key', '--clearmodifiers', key])
 
+def enable_kbd(do_enable):
+    cmd = 'enable' if do_enable else 'disable'
+    o = subprocess.check_output(['xinput', 'list', '--short'])
+    for line in o.splitlines():
+        m = re.search(r'id=(\d+)\s+\[slave\s+keyboard', line)
+        if not m:
+            continue
+        id = m.group(1)
+        subprocess.call(['xinput', cmd, id],
+                        stderr=file('/dev/null', 'w'))
+
 def get_passwords_with_users():
     passwords = set()
     users = set()
@@ -71,11 +82,17 @@ def main():
         print 'Window name "%s" does not match filter "%s"' % (winname, filter)
         return
 
-    if usernm:
-        xdotool_string(usernm + '\t' + passwd)
-        xdotool_key('Return')
-    else:
-        xdotool_string(passwd)
+    try:
+        # Disable user input while we're typing
+        enable_kbd(False)
+        if usernm:
+            xdotool_string(usernm + '\t' + passwd)
+            xdotool_key('Return')
+        else:
+            xdotool_string(passwd)
+    finally:
+        # Re-enable user input no matter what happens
+        enable_kbd(True)
 
 if __name__ == '__main__':
     main()
