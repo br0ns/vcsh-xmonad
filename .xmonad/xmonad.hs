@@ -435,6 +435,9 @@ myKeys =
   -- Focus urgent
   , ("M-u", focusUrgent)
 
+  -- Insert unicode character
+  , ("M-i", exec "~/.xmonad/unicodemenu")
+
   -- Notifications
   , ("M-0", notify "$(date +\"%A %B %d\")" "$(date +\"%F %H:%M\")")
   , ("M-9", notify "" "$(acpi)")

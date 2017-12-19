@@ -1,0 +1,74 @@
+#!/usr/bin/env python
+import os
+import sys
+import subprocess
+import re
+import time
+import requests
+import string
+try:
+    import ujson as json
+except ImportError:
+    import json
+
+os.chdir(os.path.dirname(__file__))
+
+FILE = 'unicode-names.json'
+
+if not os.path.exists(FILE):
+    URL  = 'http://www.unicode.org/Public/UCD/latest/ucd/NamesList.txt'
+
+    r = requests.get(URL)
+    names_list = r.text
+
+    names = []
+    for line in names_list.splitlines():
+        try:
+            code, name = line.split(None, 1)
+        except ValueError:
+            continue
+        if not all((
+                len(code) == 4,
+                all(c in string.hexdigits for c in code),
+                not name.startswith('<'),
+                )):
+            continue
+        char = unichr(int(code, 16))
+        name = char + ' ' + name[0] + name[1:].lower()
+        names.append(name)
+
+    json.dump(names, file(FILE, 'wb'))
+
+def rofi_menu(opts, prompt = ''):
+    p = subprocess.Popen(['rofi', '-dmenu', '-p', prompt],
+                         stdin = subprocess.PIPE,
+                         stdout = subprocess.PIPE,
+                         stderr = subprocess.PIPE,
+                         )
+    o, _e = p.communicate('\n'.join(opts).encode('utf8'))
+    if not o:
+        return None
+    return o.strip()
+
+def xdotool_string(string):
+    subprocess.check_call(['xdotool', 'type', '--clearmodifiers', '--', string])
+
+def main():
+    names = json.load(file(FILE, 'rb'))
+    name = rofi_menu(names).decode('utf8')
+    if not name:
+        return
+    # Move to top of list
+    names.remove(name)
+    names.insert(0, name)
+    json.dump(names, file(FILE, 'wb'))
+
+    char = name[0]
+
+    # Give Rofi time to disappear
+    time.sleep(0.2)
+
+    xdotool_string(char)
+
+if __name__ == '__main__':
+    main()
