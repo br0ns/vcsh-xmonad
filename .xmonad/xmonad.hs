@@ -151,9 +151,10 @@ myEditor = "emacs"
 
 edit files = safeSpawn myEditor files
 term = exec myTerminal
-browser urls = safeSpawn myBrowser $ "--" : urls
-newBrowser urls = safeSpawn myBrowser $ "--new-window" : "--" : urls
-appBrowser url = safeSpawn myBrowser ["--app=" ++ url]
+browser args urls = safeSpawn myBrowser $ args ++ "--" : urls
+newBrowser profile = browser ["--profile-directory=" ++ profile, "--new-window"]
+appBrowser profile url =
+  browser ["--profile-directory=" ++ profile, "--app=" ++ url] []
 
 myTopics =
   [ "today"
@@ -222,22 +223,24 @@ myTopicConfig = TopicConfig
           exec $ myTerminal ++ " -e ssh lolbox.pwnies.dk -t screen -DR irc"
          )
        , ("music",
-          appBrowser "https://soundcloud.com/explore/trance"
+          appBrowser "PC" "https://soundcloud.com/explore/trance"
          )
        , ("organise",
-          do appBrowser "http://gmail.com"
-             appBrowser "http://calendar.google.com"
+          do appBrowser "PC" "http://gmail.com"
+             appBrowser "Phone" "http://gmail.com"
+             appBrowser "Phone" "http://calendar.google.com"
              edit ["~/.when/calendar"]
          )
        , ("procrastination",
-          newBrowser [ "xkcd.com"
-                     , "facebook.com"
-                     , "smbc-comics.com"
-                     , "phdcomics.com/comics.php"
-                     ]
+          newBrowser "PC"
+           [ "xkcd.com"
+           , "facebook.com"
+           , "smbc-comics.com"
+           , "phdcomics.com/comics.php"
+           ]
          )
        , ("web",
-          browser []
+          newBrowser "PC" []
          )
 
          -- Configuration
@@ -260,27 +263,28 @@ myTopicConfig = TopicConfig
          )
        , ("xmonad",
           do edit ["~/.xmonad/xmonad.hs"]
-             newBrowser ["http://xmonad.org/xmonad-docs/xmonad-contrib/"]
+             newBrowser "PC" ["http://xmonad.org/xmonad-docs/xmonad-contrib/"]
          )
 
          -- Programming
        , ("haskell",
-          newBrowser ["www.haskell.org/hoogle/"]
+          newBrowser "PC" ["www.haskell.org/hoogle/"]
          )
 
          -- Projects
        , ("bitcoin",
-          newBrowser [ "http://bitcoinity.org/markets"
-                     , "http://bitcoinwisdom.com/bitcoin/difficulty"
-                     , "https://www.hashnest.com"
-                     , "https://www.bitstamp.net"
-                     ]
+          newBrowser "PC"
+           [ "http://bitcoinity.org/markets"
+           , "http://bitcoinwisdom.com/bitcoin/difficulty"
+           , "https://www.hashnest.com"
+           , "https://www.bitstamp.net"
+           ]
          )
        , ("projects",
           edit ["~/projects/NOTES.md"]
          )
        , ("pwntools",
-          do newBrowser ["https://github.com/Gallopsled/pwntools"]
+          do newBrowser "PC" ["https://github.com/Gallopsled/pwntools"]
              term
          )
        , ("treasure-hunt",
