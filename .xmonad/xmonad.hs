@@ -184,8 +184,11 @@ myTopics =
   , "python"
   , "sml"
 
-    -- Projects
+    -- Internet
   , "bitcoin"
+  , "stocks"
+
+    -- Projects
   , "blog"
   , "bootstrap"
   , "ddmin"
@@ -220,7 +223,7 @@ myTopicConfig = TopicConfig
           exec "deluge"
          )
        , ("im",
-          exec $ myTerminal ++ " -e ssh lolbox.pwnies.dk -t screen -DR irc"
+          exec $ myTerminal ++ " -e ssh fa.ntast.dk -t screen -DR irc"
          )
        , ("music",
           appBrowser "PC" "https://soundcloud.com/explore/trance"
@@ -263,7 +266,7 @@ myTopicConfig = TopicConfig
          )
        , ("xmonad",
           do edit ["~/.xmonad/xmonad.hs"]
-             newBrowser "PC" ["http://xmonad.org/xmonad-docs/xmonad-contrib/"]
+             newBrowser "PC" ["https://hackage.haskell.org/package/xmonad-contrib"]
          )
 
          -- Programming
@@ -271,7 +274,7 @@ myTopicConfig = TopicConfig
           newBrowser "PC" ["www.haskell.org/hoogle/"]
          )
 
-         -- Projects
+         -- Internet
        , ("bitcoin",
           newBrowser "PC"
            [ "http://bitcoinity.org/markets"
@@ -280,6 +283,28 @@ myTopicConfig = TopicConfig
            , "https://www.bitstamp.net"
            ]
          )
+
+       , ("stocks",
+           let
+             stock xchg symb =
+               "https://www.google.dk/search?q=" ++ xchg ++ "%3A" ++ symb
+             nasdaq   = stock "nasdaq"
+             helsinki = stock "hel"
+           in
+             newBrowser "PC"
+             [ nasdaq   "nvda"  -- Nvidia
+             , nasdaq   "tsla"  -- Tesla
+             , nasdaq   "amd"   -- AMD
+             , nasdaq   "intc"  -- Intel
+             , nasdaq   "msft"  -- Microsoft
+             , nasdaq   "fb"    -- Facebook
+             , helsinki "nokia" -- Nokia
+             , nasdaq   "googl" -- Alphabet (Google)
+             , nasdaq   "amzn"  -- Amazon
+             ]
+         )
+
+         -- Projects
        , ("projects",
           edit ["~/projects/NOTES.md"]
          )
@@ -378,6 +403,7 @@ myKeys =
   , ("<XF86AudioLowerVolume>", exec "volume -")
   , ("<XF86AudioRaiseVolume>", exec "volume +")
   , ("<XF86AudioMute>",        exec "volume toggle")
+  , ("M-m",                    exec "volume toggle --active-window")
 
   -- Display
   , ("<XF86Display>", exec "xrandr-cycle")
@@ -429,9 +455,8 @@ myKeys =
 
   -- Scratchpad
   , ("M-S-<Space>", scratchpadSpawnActionCustom "term" "xterm -name scratchpad-term")
-  , ("M-S-p", scratchpadSpawnActionCustom "python" "PYTHONPATH=~/projects/pwntools/ xterm -name scratchpad-python -e ipython -c 'from pwn import *' --no-confirm-exit -i")
+  , ("M-S-p", scratchpadSpawnActionCustom "python" "xterm -name scratchpad-python -e ipython --profile=scratchpad")
   , ("M-S-h", scratchpadSpawnActionCustom "haskell" "xterm -name scratchpad-haskell -e ghci")
-  -- , ("M-S-s", scratchpadSpawnActionCustom "python" "PYTHONPATH=~/projects/pwntools/ xterm -name scratchpad-python -e ipython -c 'from pwn import *' --no-confirm-exit -i")
 
   -- Global window
   , ("M-S-g", toggleGlobal)
