@@ -3,7 +3,8 @@ import os, sys, subprocess, re
 
 # Based on script by Idolf, https://github.com/idolf
 
-PASSWORD_ONLY = ' (password only)'
+PASSWORD_ONLY = ' (password)'
+USERNAME_ONLY = ' (username)'
 
 def pass_list():
     passdir = os.path.expanduser('~/.password-store')
@@ -18,7 +19,7 @@ def pass_get(entry):
     return subprocess.check_output(['pass', 'show', entry]).split('\n')[0]
 
 def rofi_menu(opts, prompt = ''):
-    p = subprocess.Popen(['rofi', '-dmenu', '-p', prompt],
+    p = subprocess.Popen(['rofi', '-dmenu', '-matching', 'fuzzy', '-p', prompt],
                          stdin = subprocess.PIPE,
                          stdout = subprocess.PIPE,
                          stderr = subprocess.PIPE,
@@ -60,16 +61,22 @@ def main():
     opts = []
     for entry in entries:
         if entry.endswith('/user') and entry[:-5] in entries:
-            entry = entry[:-5] + PASSWORD_ONLY
-        if entry.endswith('/filter') and entry[:-7] in entries:
-            continue
-        opts.append(entry)
+            opts.append(entry[:-5] + PASSWORD_ONLY)
+            opts.append(entry[:-5] + USERNAME_ONLY)
+        elif entry + '/user' not in entries:
+            opts.append(entry + PASSWORD_ONLY)
+        elif entry.endswith('/filter') and entry[:-7] in entries:
+            pass
+        else:
+            opts.append(entry)
 
     passwd = rofi_menu(sorted(opts))
     usernm = passwd + '/user'
     filter = passwd + '/filter'
     if passwd.endswith(PASSWORD_ONLY):
         passwd = passwd[:-len(PASSWORD_ONLY)]
+    elif passwd.endswith(USERNAME_ONLY):
+        passwd = passwd[:-len(USERNAME_ONLY)] + '/user'
 
     passwd = pass_get(passwd)
     usernm = pass_get(usernm) if usernm in entries else None
