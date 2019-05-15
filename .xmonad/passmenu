@@ -19,7 +19,9 @@ def pass_get(entry):
     return subprocess.check_output(['pass', 'show', entry]).split('\n')[0]
 
 def rofi_menu(opts, prompt = ''):
-    p = subprocess.Popen(['rofi', '-dmenu', '-matching', 'fuzzy', '-p', prompt],
+    # argv = ['rofi', '-dmenu', '-matching', 'fuzzy', '-p', prompt]
+    argv = ['rofi', '-dmenu', '-p', prompt]
+    p = subprocess.Popen(argv,
                          stdin = subprocess.PIPE,
                          stdout = subprocess.PIPE,
                          stderr = subprocess.PIPE,
