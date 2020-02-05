@@ -1,0 +1,6 @@
+#!/bin/sh
+DIR=$(acwd)
+if [ $? -eq 0 ] ; then
+   cd "$DIR"
+fi
+exec xterm

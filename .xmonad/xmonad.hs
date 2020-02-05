@@ -145,7 +145,7 @@ exec s = do
         let path = joinPath $ prefix : suffix
         return path
 
-myTerminal = "xterm"
+myTerminal = "~/.xmonad/xterm-acwd"
 myBrowser = "chromium"
 myEditor = "emacs"
 
@@ -173,6 +173,7 @@ myTopics =
 
     -- Configuration
   , "bash"
+  , "fish"
   , "emacs"
   , "gdb"
   , "git"
@@ -249,6 +250,9 @@ myTopicConfig = TopicConfig
          -- Configuration
        , ("bash",
           edit ["~/.bashrc"]
+         )
+       , ("fish",
+          edit ["~/.config/fish/config.fish"]
          )
        , ("emacs",
           edit ["~/.emacs.d/settings/global-key-bindings.el"]
@@ -364,8 +368,15 @@ br0nsConfig =
        , XMonad.workspaces = myTopics
        , terminal = "exec " ++ myTerminal
        }
-       -- Unbind quit and switching between workspaces with the number keys
-       `removeKeysP` (["M-q"] ++ ["M-" ++ m ++ k | m <- ["", "S-"], k <- map show [1..9 :: Int]])
+       -- Unbind quit/restart and switching between workspaces with the #-keys
+       `removeKeysP` (["M-q", "M-S-q"
+                      ,"M-w", "M-S-w"
+                      ,"M-e", "M-S-e"
+                      ,"M-r", "M-S-r"
+                      ] ++
+                      ["M-" ++ m ++ k |
+                        m <- ["", "S-"],
+                        k <- map show [1..9 :: Int]])
        -- My key bindings
        `additionalKeysP` myKeys
 
