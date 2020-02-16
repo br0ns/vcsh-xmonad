@@ -128,33 +128,41 @@ myManageHook =
 --                               TOPICS                               --
 ------------------------------------------------------------------------
 
+expandUser :: FilePath -> X FilePath
+expandUser path = liftIO $
+  if head path /= '~'
+  then return path
+  else do
+    let tilde : suffix = splitPath path
+    -- `init` because `splitPath "~/foo"` => `["~/", "foo"]`
+    prefix <- case init tilde of
+      [_]      -> getHomeDirectory
+      _ : user -> return $ "/home/" ++ user
+
+    let path = joinPath $ prefix : suffix
+    return path
+
 exec s = do
   let prog : args = words s
-  path <- liftIO $ expandUser prog
+  path <- expandUser prog
   safeSpawn path args
   where
-    expandUser path =
-      if head path /= '~'
-      then return path
-      else do
-        let tilde : suffix = splitPath path
-        -- `init` because `splitPath "~/foo"` => `["~/", "foo"]`
-        prefix <- case init tilde of
-          [_]      -> getHomeDirectory
-          _ : user -> return $ "/home/" ++ user
-        let path = joinPath $ prefix : suffix
-        return path
 
 myTerminal = "~/.xmonad/xterm-acwd"
-myBrowser = "chromium"
+myBrowser = "google-chrome"
 myEditor = "emacs"
 
 edit files = safeSpawn myEditor files
 term = exec myTerminal
-browser args urls = safeSpawn myBrowser $ args ++ "--" : urls
-newBrowser profile = browser ["--profile-directory=" ++ profile, "--new-window"]
-appBrowser profile url =
-  browser ["--profile-directory=" ++ profile, "--app=" ++ url] []
+
+-- Symlink ~/.config/google-chrome to ~/.config/google-chrome-DEFAULT
+browser profile args urls = do
+  profileDir <- expandUser $ "~/.config/google-chrome-" ++ profile
+  safeSpawn myBrowser $
+    ["--user-data-dir=" ++ profileDir] ++ args ++ "--" : urls
+
+newBrowser profile = browser profile ["--new-window"]
+appBrowser profile url = browser profile ["--app=" ++ url] []
 
 myTopics =
   [ "today"
@@ -227,16 +235,16 @@ myTopicConfig = TopicConfig
           exec $ myTerminal ++ " -e ssh fa.ntast.dk -t screen -DR irc"
          )
        , ("music",
-          appBrowser "PC" "https://soundcloud.com/explore/trance"
+          appBrowser "default" "https://soundcloud.com/explore/trance"
          )
        , ("organise",
-          do appBrowser "PC" "http://gmail.com"
-             appBrowser "Phone" "http://gmail.com"
-             appBrowser "Phone" "http://calendar.google.com"
+          do appBrowser "default" "http://gmail.com"
+             appBrowser "phone" "http://gmail.com"
+             appBrowser "phone" "http://calendar.google.com"
              edit ["~/.when/calendar"]
          )
        , ("procrastination",
-          newBrowser "PC"
+          newBrowser "default"
            [ "xkcd.com"
            , "facebook.com"
            , "smbc-comics.com"
@@ -244,7 +252,7 @@ myTopicConfig = TopicConfig
            ]
          )
        , ("web",
-          newBrowser "PC" []
+          newBrowser "default" []
          )
 
          -- Configuration
@@ -270,17 +278,17 @@ myTopicConfig = TopicConfig
          )
        , ("xmonad",
           do edit ["~/.xmonad/xmonad.hs"]
-             newBrowser "PC" ["https://hackage.haskell.org/package/xmonad-contrib"]
+             newBrowser "default" ["https://hackage.haskell.org/package/xmonad-contrib"]
          )
 
          -- Programming
        , ("haskell",
-          newBrowser "PC" ["www.haskell.org/hoogle/"]
+          newBrowser "default" ["www.haskell.org/hoogle/"]
          )
 
          -- Internet
        , ("bitcoin",
-          newBrowser "PC"
+          newBrowser "default"
            [ "http://bitcoinity.org/markets"
            , "http://bitcoinwisdom.com/bitcoin/difficulty"
            , "https://www.hashnest.com"
@@ -295,7 +303,7 @@ myTopicConfig = TopicConfig
              nasdaq   = stock "nasdaq"
              helsinki = stock "hel"
            in
-             newBrowser "PC"
+             newBrowser "default"
              [ nasdaq   "nvda"  -- Nvidia
              , nasdaq   "tsla"  -- Tesla
              , nasdaq   "amd"   -- AMD
@@ -313,7 +321,7 @@ myTopicConfig = TopicConfig
           edit ["~/projects/NOTES.md"]
          )
        , ("pwntools",
-          do newBrowser "PC" ["https://github.com/Gallopsled/pwntools"]
+          do newBrowser "default" ["https://github.com/Gallopsled/pwntools"]
              term
          )
        , ("treasure-hunt",
