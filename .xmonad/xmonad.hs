@@ -3,6 +3,7 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 -- Main inspiration:
 -- http://www.haskell.org/haskellwiki/Xmonad/Config_archive/Brent_Yorgey's_darcs_xmonad.hs
@@ -11,11 +12,12 @@
 import XMonad
 import XMonad.StackSet as W
 import qualified Data.Map as M
-import Data.Maybe (isNothing, isJust, catMaybes)
-import Data.List (isPrefixOf, partition, (\\))
-import Control.Monad (liftM2, when, unless)
+import Data.Maybe (isNothing, isJust, catMaybes, fromMaybe)
+import Data.List (isPrefixOf, partition, (\\), find)
+import Control.Monad (liftM, liftM2, when, unless)
 import Control.Applicative ((<$>))
 import Control.Exception (catch)
+import Control.Arrow (second)
 import System.Directory
 import System.FilePath
 import System.Locale
@@ -56,6 +58,7 @@ import XMonad.Layout.MultiColumns
 import XMonad.Layout.WindowNavigation
 import XMonad.Layout.TwoPane
 import XMonad.Layout.ToggleLayouts
+import XMonad.Layout.Reflect
 
 ----- Actions
 import XMonad.Actions.CycleWS
@@ -83,18 +86,42 @@ import XMonad.Util.Run (safeSpawn)
 import XMonad.Util.NamedWindows (getName)
 import XMonad.Util.Cursor
 
--- XXX: focusUp, ... only on mapped windows
+-- Ref: https://www.reddit.com/r/xmonad/comments/fhzw3
+findScreenByTag i = gets (W.screens . windowset)
+                    >>= return . find ((== i) . (W.tag . W.workspace))
+data SLS sl ol a = SLS ScreenId sl ol deriving (Show, Read)
+instance (LayoutClass sl a, LayoutClass ol a)
+      => LayoutClass (SLS (sl a) (ol a)) a where
 
-myLayout =
-         -- Tall 1 (3/100) (4/7) |||
-         -- ResizableTall 1 (3/100) (4/7) [] |||
-         -- Tabbed.tabbedBottom Tabbed.CustomShrink myTabbedTheme
-         toggleLayouts
-         (Full |||
-          TwoPane (3/100) (1/2)
-         )
-         (multiCol [1] 4 (3/100) (4/7)
-         )
+    -- glance at the current screen to determine which layout to run
+    runLayout (W.Workspace i (SLS s sl ol) ms) r = do
+        mts <- findScreenByTag i
+        case liftM ((== s) . W.screen) mts of
+            Just True -> fmap (second . fmap $ \nsl -> SLS s nsl ol)
+                       $ runLayout (W.Workspace i sl ms) r
+            _ -> fmap (second . fmap $ \nol -> SLS s sl nol)
+               $ runLayout (W.Workspace i ol ms) r
+
+    -- route messages to both sub-layouts (ick)
+    handleMessage l@(SLS s sl ol) m = do
+        msl <- handleMessage sl m
+        mol <- handleMessage ol m
+        return $ if isNothing msl && isNothing mol
+         then Nothing
+         else Just $ SLS s (fromMaybe sl msl) (fromMaybe ol mol)
+
+-- | A utility constructor for SLS which helps to get the types right
+mksls :: (LayoutClass sl a, LayoutClass ol a)
+      => Int -> (sl a) -> (ol a) -> SLS (sl a) (ol a) a
+mksls i = SLS (S i)
+
+myLayout = mksls 0 layout $ reflectHoriz layout
+  where
+    layout = toggleLayouts
+      (Full |||
+       TwoPane (3/100) (1/2)
+      )
+      (multiCol [1] 4 (3/100) (4/7))
 
 -- Don't show text in tabs.
 instance Tabbed.Shrinker Tabbed.CustomShrink where
